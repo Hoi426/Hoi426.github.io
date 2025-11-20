@@ -1,54 +1,25 @@
-/* 1. Gallery Container Setup: Enables Horizontal Scroll */
-.gallery-container {
-    display: flex; 
-    
-    /* Forces items onto a single line */
-    flex-wrap: nowrap; 
-    
-    /* Allows user to scroll left/right */
-    overflow-x: scroll; 
-    
-    /* Ensures the container doesn't set a height limit that's too small */
-    height: auto; 
-    
-    /* Removes the default scrollbar area from the view */
-    padding: 10px 0; 
-    
-    /* Spacing between images */
-    gap: 15px; 
-}
-
-/* 2. Gallery Item Setup: Defines the Size and Behavior of the Wrapper */
 .gallery-item {
-    /* Prevents the item from shrinking when content overflows */
-    flex-shrink: 0; 
+    /* Set a position context for the image */
+    position: relative; 
+    /* Remove the fixed height/max-width and use aspect ratio trick */
+    width: 100%;
+    overflow: hidden; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
     
-    /* Set a reasonable, fixed width for each image thumbnail. Adjust this value! */
-    width: 300px; 
-    
-    /* Allows the item's height to be determined by the image content */
-    height: auto; 
+    /* 🌟 The Aspect Ratio Magic (e.g., 2:3 Portrait) 🌟 */
+    /* This creates a 2:3 aspect ratio container (200px wide, 300px tall) */
+    padding-top: 150%; /* (Height / Width) * 100 = (3 / 2) * 100 = 150% */
 }
 
-/* 3. Image Setup: Crucial for Preventing Cropping */
+/* Modify the image rule to fit the new container */
 .gallery-item img {
-    /* Image takes the full width of its 300px container */
+    /* 🌟 Make the image fill the fixed-ratio container 🌟 */
+    position: absolute; /* Take image out of flow */
+    top: 0;
+    left: 0;
     width: 100%; 
-    
-    /* *** CRUCIAL: Allows the image height to scale proportionally based on its content (aspect ratio) *** */
-    height: auto; 
-    
-    /* *** IMPORTANT: Ensures the image is not cropped. 
-       If the image container had a fixed height, 'contain' would show the whole image 
-       and letterbox it. Since the height is 'auto', it ensures the full, original image 
-       proportion is preserved. *** */
-    object-fit: contain;
-    
-    /* Remove base line spacing */
-    display: block; 
-}
-
-/* Optional: If you want landscape images to be wider */
-.gallery-item img.is-landscape {
-    width: 450px;
+    height: 100%;
+    object-fit: cover; /* Ensures image covers the area without distortion */
+    display: block;
 }
