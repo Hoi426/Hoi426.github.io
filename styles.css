@@ -1,25 +1,46 @@
-.gallery-item {
-    /* Set a position context for the image */
-    position: relative; 
-    /* Remove the fixed height/max-width and use aspect ratio trick */
-    width: 100%;
-    overflow: hidden; 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    
-    /* 🌟 The Aspect Ratio Magic (e.g., 2:3 Portrait) 🌟 */
-    /* This creates a 2:3 aspect ratio container (200px wide, 300px tall) */
-    padding-top: 150%; /* (Height / Width) * 100 = (3 / 2) * 100 = 150% */
+/* styles.css */
+
+/* --- General Reset and Body Styling --- */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4; /* Light background for contrast */
+    color: #333;
 }
 
-/* Modify the image rule to fit the new container */
-.gallery-item img {
-    /* 🌟 Make the image fill the fixed-ratio container 🌟 */
-    position: absolute; /* Take image out of flow */
-    top: 0;
-    left: 0;
-    width: 100%; 
-    height: 100%;
-    object-fit: cover; /* Ensures image covers the area without distortion */
-    display: block;
+/* --- Header Styling --- */
+header {
+    background-color: #007bff; /* Blue header for a clean look */
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+header h1 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+/* --- Gallery Container (Main Layout) --- */
+.gallery-container {
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 1400px; /* Max width for large screens */
+    display: grid;
+    /* Define grid columns: 
+       - auto-fit tries to fit as many columns as possible.
+       - minmax ensures columns are at least 300px wide, up to 1fr (equal fraction of space). */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px; /* Space between grid items */
+}
+
+/* --- Individual Gallery Item --- */
+.gallery-item {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden; /* Important for image containment */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* For standard images (12
