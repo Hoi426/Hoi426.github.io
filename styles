@@ -1,46 +1,38 @@
-/* --- Basic Setup --- */
-body {
-    margin: 0;
-    background-color: #f4f4f4; 
-}
+/* --- Default Styling (Applied to all screens, especially portrait) --- */
 
-/* --- Main Container: Use Flexbox for Centering --- */
 .gallery-container {
-    display: flex; /* Activate flexbox */
-    flex-direction: column; /* Stack items vertically */
-    align-items: center; /* Center items horizontally (this centers the images!) */
-    gap: 10px; /* Space between items */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers all items */
+    gap: 10px;
     padding: 10px;
-    /* Important: Do not set a fixed width; use max-width to constrain the content. */
 }
 
-/* --- Gallery Item: Constrain the item's width --- */
 .gallery-item {
-    /* Define a maximum width for the image items. This is crucial. */
-    /* Adjust '600px' based on the typical width you want the portraits to take up on a desktop. */
-    max-width: 600px; 
-    width: 100%; /* Ensures it takes up full width up to max-width */
-    box-sizing: border-box; /* Includes padding/border in the element's total width/height */
-    text-align: center; /* Optional: ensures any text/inline content is centered */
+    /* Set a reasonable maximum width for portrait mode / narrow screens */
+    max-width: 90%; /* Let it use 90% of the screen width */
+    width: 100%; 
+    box-sizing: border-box;
 }
 
-/* --- Image Styling: Make sure images are responsive --- */
 .gallery-item img {
-    display: block; /* Removes any default inline spacing issues */
-    width: 100%; /* **Crucial:** Image will scale to 100% of its parent (.gallery-item) width */
-    height: auto; /* Maintains the image's original aspect ratio */
+    display: block; 
+    width: 100%; /* Image scales to the width of its parent (.gallery-item) */
+    height: auto;
+}
+
+/* --- Media Query for Landscape / Wider Screens --- */
+/* This targets screens that are wider than they are tall, common in phone landscape mode. */
+@media screen and (orientation: landscape) and (max-width: 1000px) {
     
-    /* Since we've constrained the width of .gallery-item, the image fits perfectly. */
-}
+    .gallery-item {
+        /* Increase the maximum width for the portrait images in landscape mode. */
+        /* Change this value to adjust the gap. 80% is a good starting point. */
+        max-width: 80%; 
+    }
 
-/* --- Special handling for the landscape image (001.jpg) --- */
-/* If you want the landscape image to take up MORE space than the portraits: */
-.gallery-item:first-child { 
-    max-width: 100%; /* Allow the very first item (the landscape one) to use full container width */
-}
-
-/* If you want landscape images to be centered but NOT exceed a certain max width: */
-.gallery-item img.is-landscape {
-    /* The general img rules above already handle this: it scales to the width of its parent */
-    /* and maintains aspect ratio. No special CSS is typically needed here. */
+    /* Optional: If you want the FIRST landscape image (001.jpg) to still span wider */
+    .gallery-item:first-child { 
+        max-width: 95%; /* Make the initial landscape item almost fill the screen */
+    }
 }
