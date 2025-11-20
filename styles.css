@@ -9,9 +9,8 @@
 html, body {
     width: 100vw;
     height: 100%;
-    /* Keep overflow hidden to prevent accidental horizontal scroll */
     overflow-x: hidden; 
-    background-color: #f4f4f4; /* Or #FFFFFF if you prefer a white background */
+    background-color: #f4f4f4; 
 }
 
 /* 3. Header Styling */
@@ -21,33 +20,35 @@ header {
     padding: 20px 0;
 }
 
-/* 4. Main Container: Use Flexbox for Centering */
+/* --- THE FIX: Ensure Centering Works --- */
+
+/* 4. Main Container: Use Flexbox to stack and roughly center */
 .gallery-container {
     display: flex;
     flex-direction: column;
-    align-items: center; /* **CRUCIAL:** Centers all items horizontally */
+    /* align-items: center; is redundant here if we use margin: 0 auto below, but kept for clarity */
+    align-items: center; 
     width: 100%;
     padding: 0;
-    gap: 10px; /* Space between images */
+    gap: 10px; 
     margin: 0 auto;
 }
 
-/* 5. Gallery Item: The wrapper for ALL images */
+/* 5. Gallery Item: The wrapper for ALL images (INCLUDING 001.jpg) */
 .gallery-item {
-    /* Set the consistent maximum width for ALL content (landscape and portrait) */
-    max-width: 600px; /* Adjust this value (e.g., 450px to 800px) based on your preference */
+    /* Set the consistent maximum width for ALL content */
+    max-width: 600px; 
     
     /* Ensure the item is responsive up to its max-width */
     width: 95%; 
-    margin: 0;
+    
+    /* CRITICAL FIX: Explicitly center the block element */
+    margin: 0 auto; 
 }
 
 /* 6. Image Scaling: Ensure images fit perfectly inside the constrained item */
 .gallery-item img {
     display: block;
     width: 100%; /* Image scales to the width of the constrained .gallery-item */
-    height: auto; /* Maintains aspect ratio */
+    height: auto; 
 }
-
-/* 7. Specific landscape item class is no longer necessary for sizing, 
-   as the general .gallery-item rule applies the max-width constraint to all. */
