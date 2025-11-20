@@ -1,52 +1,73 @@
-/* ------------------------------------------- */
-/* A Simple, Safe CSS for Full-Width Stacking */
-/* ------------------------------------------- */
-
+/* --- Base Styles for Eye Comfort --- */
 body {
+    background-color: #222; /* Darker background is easier on the eyes */
+    color: #eee;
     margin: 0;
-    padding: 0;
-    background-color: #f5f5f5; 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: sans-serif;
 }
 
 header {
     text-align: center;
-    padding: 30px 20px 10px;
+    padding: 10px 0;
+    background-color: #1a1a1a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+/* --- Layout Optimization for Landscape Mode (Mobile) --- */
 .gallery-container {
-    /* Set the container to occupy most of the viewport, centering it */
-    max-width: 95vw; 
-    margin: 20px auto; 
-    padding: 0;
-    
-    /* Layout: Forces a single vertical column */
-    display: flex;
-    flex-direction: column; 
-    align-items: center; 
-    gap: 30px; 
+    /* Use CSS Grid for flexible, controlled layout */
+    display: grid;
+    padding: 5px;
+    gap: 5px;
 }
 
+/* Media Query: Targetting typical phone landscape orientation */
+@media (min-width: 500px) and (max-aspect-ratio: 10/16) {
+    /* In phone landscape, show one column for maximum vertical space */
+    .gallery-container {
+        /* This ensures each image takes up nearly the full width */
+        grid-template-columns: 1fr; 
+    }
+}
+
+/* Media Query: For slightly larger tablets or wider desktop windows */
+@media (min-width: 768px) {
+    /* Show two columns for better space utilization */
+    .gallery-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 10px;
+    }
+}
+
+/* --- Image and Item Styling --- */
 .gallery-item {
-    /* Allow the item to stretch to 100% of the container width */
-    max-width: 100%; 
-    width: 100%; 
-    overflow: hidden; 
-    border-radius: 8px; 
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); 
+    overflow: hidden;
+    border-radius: 4px;
+    background-color: #333; /* Slightly lighter background behind the image */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    /* For portrait images (most of them), we need to ensure the item maintains a readable aspect ratio */
+    aspect-ratio: 1200 / 1669; 
 }
 
-/* THE CRITICAL PART: Image rendering */
 .gallery-item img {
+    width: 100%;
+    height: 100%; /* Fill the container */
     display: block;
-    width: 100%; 
-    /* Ensures no distortion and the full image is displayed */
-    height: auto; 
-    transition: transform 0.3s ease; 
+    /* Use object-fit to ensure the image is scaled properly to fit the aspect-ratio defined above. 
+       This might crop the landscape image (001) slightly but keeps the layout consistent. */
+    object-fit: cover; 
+    transition: opacity 0.3s;
 }
 
-/* Simple hover effect */
-.gallery-item:hover img {
-    transform: scale(1.01);
-    cursor: zoom-in; 
+/* Special handling for the landscape image (001) if you want it wider */
+.gallery-item .is-landscape {
+    /* Since we can't change the HTML easily, we rely on the existing class 'is-landscape' */
+    object-fit: contain; /* Ensure the whole landscape image is visible */
+    height: auto;
+}
+
+/* Refine the layout of the landscape image's item container */
+.gallery-item:first-child { 
+    aspect-ratio: 1600 / 1200; /* Set the correct aspect ratio for the landscape image */
 }
