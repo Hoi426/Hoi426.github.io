@@ -1,69 +1,50 @@
-/* 1. UNIVERSAL RESET (Crucial for removing hidden browser margins/padding) */
+/* 1. UNIVERSAL RESET: Removes all default browser margins/padding */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* 2. BODY/HTML SETUP (Crucial for responsive limits and clipping) */
+/* 2. BODY/HTML SETUP: Uses viewport units and hides horizontal overflow */
 html, body {
     width: 100vw;
     height: 100%;
-    /* Prevents horizontal scrolling caused by images bleeding over the edge */
+    /* CRITICAL: Hides any content that goes beyond the screen edge */
     overflow-x: hidden; 
     background-color: #f4f4f4;
 }
 
-/* 3. Main Container: Sets up vertical stacking */
+/* 3. Header Styling */
+header {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* 4. Main Container: Sets up vertical stacking and centering for all items */
 .gallery-container {
     display: flex;
     flex-direction: column;
-    align-items: center; 
-    width: 100vw; 
-    padding: 0; 
-    gap: 10px; /* Space between the landscape item and the wrapper */
+    align-items: center; /* Centers items on the page */
+    width: 100%;
+    padding: 0;
+    gap: 10px; /* Space between images */
+    margin: 0 auto; /* Ensures main container is centered */
 }
 
-/* 4. Portrait Wrapper: ISOLATES and CENTERS ALL subsequent images */
-.portrait-images-wrapper {
-    /* Treat the wrapper as a column of centered items */
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    
-    /* Force this wrapper to be screen-wide and ignore the first landscape image */
-    width: 100vw; 
-    padding: 0;
+/* 5. Gallery Item: The wrapper for all images */
+.gallery-item {
+    width: 100%; /* Default: takes up 100% of the centered container's width */
+    max-width: 800px; /* Constraints for large desktop screens */
     margin: 0;
 }
 
-/* 5. General Gallery Item and Image Styling */
-.gallery-item {
-    /* By default, limit the width for large screens */
-    max-width: 700px;
-    width: 100%; /* Fill the width of its parent (either .gallery-container or .portrait-images-wrapper) */
-    margin-bottom: 10px;
-}
-
+/* 6. Image Scaling */
 .gallery-item img {
     display: block;
-    width: 100%; 
-    height: auto; 
+    width: 100%;
+    height: auto;
 }
 
-/* 6. TARGETED LANDSCAPE MODE FIX (Portrait Images) */
-/* This targets screens in landscape (wide) orientation to reduce the centered gap */
+/* 7. LANDSCAPE MODE GAP FIX (The most aggressive technique for mobile devices) */
 @media screen and (orientation: landscape) and (max-width: 1000px) {
-    
-    .portrait-images-wrapper .gallery-item {
-        /* On wide screens, make the portrait images take up nearly the full width */
-        width: 98vw; 
-        max-width: 98vw; /* Override the desktop max-width */
-    }
-    
-    .portrait-images-wrapper .gallery-item img {
-        /* Aggressive width setting to try and visually "clip" the system gap */
-        width: 100.5%; 
-        margin-left: -0.25%; /* Shift slightly left for better visual centering */
-    }
-}
