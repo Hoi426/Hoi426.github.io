@@ -1,6 +1,6 @@
 /* ... (Sections 1 through 6 remain the same: Universal Reset, Body Setup, Header, Container, Item, and Image) ... */
 
-/* 7. LANDSCAPE MODE GAP FIX & CENTERING CORRECTION (Final Push) */
+/* 7. LANDSCAPE MODE GAP FIX & CENTERING CORRECTION (Maximized Push) */
 @media screen and (orientation: landscape) and (max-width: 1000px) {
     
     .gallery-container {
@@ -11,8 +11,8 @@
         margin-left: -1.5vw;
         margin-right: -1.5vw;
         
-        /* FINAL, DEFINITIVE CORRECTION: Increased shift to 1.2vw to close the remaining gap on the right. */
-        transform: translateX(1.2vw); 
+        /* EXTREME CORRECTION: Set shift equal to the negative margin to fully recenter the content. */
+        transform: translateX(1.5vw); 
         
         /* Remove desktop constraint in landscape */
         max-width: none; 
