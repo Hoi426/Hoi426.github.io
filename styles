@@ -1,28 +1,60 @@
 /* 1. Define the main wrapper as a Grid */
 .gallery-wrapper {
-    display: grid;
-    /* Create three equal-width columns (adjust 3 to your desired number of columns) */
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 10px; /* Space between items */
+    display: grid;
+    /* Create three equal-width columns */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px; /* Space between items */
 }
 
 /* 2. Your existing .gallery-item styles (keep these) */
 .gallery-item {
-    position: relative; 
-    width: 100%; /* Important: This means 100% of the grid column */
-    /* ... other styles ... */
-    padding-top: 150%; /* Portrait aspect ratio */
+    position: relative;
+    width: 100%; /* 100% of the grid column */
+    /* ... other styles ... */
+    padding-top: 150%; /* Portrait aspect ratio */
 }
 
 /* 3. The fix for the landscape item's container (Keep this too) */
 .gallery-item.landscape-item {
-    /* Set to a wide ratio (e.g., 16:9) */
-    padding-top: 56.25%; 
-    /* Crucial: Ensure it only spans one column, even though it's wide */
-    grid-column: span 1; 
+    /* Set to a wide ratio (e.g., 16:9) */
+    padding-top: 56.25%;
+    /* Crucial: Ensure it only spans one column, even though it's wide */
+    grid-column: span 1;
 }
 
-/* 4. The image styles inside */
+/* 4. The image styles inside (assuming you have them) */
 .gallery-item img {
-    /* ... your positioning and object-fit: cover styles ... */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+}
+
+/* --- Centering Fix for Phone Landscape --- */
+
+/* Use a media query to target narrow screens (e.g., max-width: 768px for phones/tablets) */
+@media (max-width: 768px) {
+    .gallery-wrapper {
+        /* Crucial Change: Switch to a single column.
+            We use a fixed or max width for the column to allow centering. */
+        grid-template-columns: minmax(0, 400px); /* Creates one column with max width of 400px */
+        
+        /* The centering property for Grid items on the main axis (horizontal) */
+        justify-content: center;
+
+        /* Optional: Center the content vertically if needed (align-items: center;) */
+    }
+
+    /* Ensure all items only span one column in this view */
+    .gallery-item {
+        grid-column: span 1;
+    }
+
+    /* If you want the landscape item to look better, you can give it a wider aspect ratio here */
+    .gallery-item.landscape-item {
+        /* You might even change the padding-top if the aspect ratio feels too tall/short */
+        padding-top: 56.25%; /* Keeping the 16:9 ratio */
+    }
 }
