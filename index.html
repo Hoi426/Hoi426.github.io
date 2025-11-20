@@ -1,373 +1,146 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guramumo Bu Gallery</title>
-    <!-- Load Tailwind CSS for styling utilities -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Base Styles */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9; /* Slate-100 */
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-        }
-
-        /* Header Styling */
-        header {
-            background-color: #1e293b; /* Slate-800 */
-            color: #f1f5f9; /* Slate-100 */
-            padding: 2rem 1rem;
-            text-align: center;
-            margin-bottom: 2.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-            border-radius: 0 0 16px 16px;
-        }
-
-        h1 {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            font-weight: 800;
-        }
-
-        /* Gallery Container (CSS Grid) */
-        .gallery-container {
-            display: grid;
-            /* Adaptive columns: 1 column on mobile, 2 on tablet, 3 on desktop */
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem; /* Spacing between items */
-            padding: 0 1rem 4rem 1rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* Gallery Item Styling */
-        .gallery-item {
-            background-color: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
-
-        .gallery-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Image Styling */
-        .gallery-item img {
-            display: block;
-            width: 100%;
-            height: auto;
-            object-fit: cover;
-            /* Ensure the placeholder style is handled */
-            min-height: 200px;
-        }
-
-        /* Specific style for the landscape image (001.jpg) to act as a masthead/feature */
-        .gallery-item:first-child.is-landscape {
-            grid-column: 1 / -1; /* Span across all available columns */
-            max-height: 400px;
-            background-color: #cbd5e1; /* Slate-300 background for contrast */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-
-        .gallery-item:first-child.is-landscape img {
-            height: 100%;
-            max-height: 380px;
-            width: auto; /* Allow auto width to respect aspect ratio within max-height */
-            object-fit: contain; /* Ensure the full image is visible, no cropping */
-            border-radius: 8px;
-        }
-
-        /* Media Query for Mobile (less than 640px) */
-        @media (max-width: 640px) {
-            .gallery-container {
-                grid-template-columns: 1fr; /* Single column on small screens */
-                gap: 1rem;
-            }
-            .gallery-item:first-child.is-landscape {
-                max-height: none;
-                padding: 0;
-            }
-            .gallery-item:first-child.is-landscape img {
-                width: 100%;
-                max-height: none;
-                height: auto;
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Photo Gallery</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <header>
-        <h1>[Guramumo Bu] Joi-san no Onee-chan ga Hoshii</h1>
-    </header>
+    <header>
+        <h1>[Guramumo Bu] Joi-san no Onee-chan ga Hoshii</h1>
+    </header>
 
-    <main class="gallery-container">
-        <!-- Image 001: Landscape (1600x1200) - Spans full width -->
-        <div class="gallery-item is-landscape">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/001.jpg" 
-                alt="Image 001 - Landscape Feature"
-                onerror="this.onerror=null; this.src='https://placehold.co/1600x1200/94a3b8/ffffff?text=Image+001+Not+Found'; this.style.backgroundColor='#94a3b8'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/001.jpg'">
-        </div>
-        
-        <!-- The rest of the images are portrait (1200x1669) -->
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/002.jpg" 
-                alt="Image 002"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+002+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/002.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/003.jpg" 
-                alt="Image 003"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+003+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/003.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/004.jpg" 
-                alt="Image 004"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+004+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/004.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/005.jpg" 
-                alt="Image 005"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+005+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/005.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/006.jpg" 
-                alt="Image 006"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+006+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/006.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/007.jpg" 
-                alt="Image 007"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+007+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/007.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/008.jpg" 
-                alt="Image 008"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+008+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/008.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/009.jpg" 
-                alt="Image 009"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+009+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/009.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/010.jpg" 
-                alt="Image 010"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+010+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/010.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/011.jpg" 
-                alt="Image 011"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+011+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/011.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/012.jpg" 
-                alt="Image 012"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+012+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/012.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/014.jpg" 
-                alt="Image 014"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+014+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/014.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/015.jpg" 
-                alt="Image 015"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+015+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/015.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/016.jpg" 
-                alt="Image 016"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+016+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/016.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/017.jpg" 
-                alt="Image 017"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+017+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/017.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/018.jpg" 
-                alt="Image 018"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+018+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/018.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/019.jpg" 
-                alt="Image 019"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+019+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/019.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/020.jpg" 
-                alt="Image 020"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+020+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/020.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/021.jpg" 
-                alt="Image 021"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+021+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/021.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/022.jpg" 
-                alt="Image 022"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+022+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/022.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/023.jpg" 
-                alt="Image 023"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+023+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/023.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/024.jpg" 
-                alt="Image 024"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+024+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/024.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/025.jpg" 
-                alt="Image 025"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+025+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/025.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/026.jpg" 
-                alt="Image 026"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+026+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/026.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/027.jpg" 
-                alt="Image 027"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+027+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/027.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/029.jpg" 
-                alt="Image 029"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+029+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/029.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/030.jpg" 
-                alt="Image 030"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+030+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/030.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/031.jpg" 
-                alt="Image 031"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+031+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/031.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/032.jpg" 
-                alt="Image 032"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+032+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/032.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/033.jpg" 
-                alt="Image 033"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+033+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/033.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/034.jpg" 
-                alt="Image 034"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+034+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/034.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/035.jpg" 
-                alt="Image 035"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+035+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/035.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/036.jpg" 
-                alt="Image 036"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+036+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/036.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/037.jpg" 
-                alt="Image 037"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+037+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/037.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/038.jpg" 
-                alt="Image 038"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+038+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/038.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/039.jpg" 
-                alt="Image 039"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+039+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/039.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/040.jpg" 
-                alt="Image 040"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+040+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/040.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/041.jpg" 
-                alt="Image 041"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+041+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/041.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/042.jpg" 
-                alt="Image 042"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+042+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/042.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/043.jpg" 
-                alt="Image 043"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+043+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/043.jpg'">
-        </div>
-        <div class="gallery-item">
-            <img 
-                src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/044.jpg" 
-                alt="Image 044"
-                onerror="this.onerror=null; this.src='https://placehold.co/1200x1669/e2e8f0/334155?text=Image+044+Not+Found'; this.title='Path: guramumo_bu_joi-san_no_onee-chan_ga_hoshii/044.jpg'">
-        </div>
-    </main>
+    <main class="gallery-container">
+        <div class="gallery-item">
+            <img class="is-landscape" src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/001.jpg">
+        </div>
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/002.jpg">
+        </div>
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/003.jpg">
+        </div>       
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/004.jpg">
+        </div>   
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/005.jpg">
+        </div>     
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/006.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/007.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/008.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/009.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/010.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/011.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/012.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/014.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/015.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/016.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/017.jpg">
+        </div>
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/018.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/019.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/020.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/021.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/022.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/023.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/024.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/025.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/026.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/027.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/029.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/030.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/031.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/032.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/033.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/034.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/035.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/036.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/037.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/038.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/039.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/040.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/041.jpg">
+        </div> 
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/042.jpg">
+        </div>
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/043.jpg">
+        </div>
+        <div class="gallery-item">
+            <img src="guramumo_bu_joi-san_no_onee-chan_ga_hoshii/044.jpg">
+        </div>
+        </main>
 
 </body>
 </html>
