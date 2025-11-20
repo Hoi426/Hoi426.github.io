@@ -1,60 +1,47 @@
-/* 1. Define the main wrapper as a Grid */
-.gallery-wrapper {
-    display: grid;
-    /* Create three equal-width columns */
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px; /* Space between items */
-}
+/* --- Your Existing CSS --- */
 
-/* 2. Your existing .gallery-item styles (keep these) */
 .gallery-item {
-    position: relative;
-    width: 100%; /* 100% of the grid column */
-    /* ... other styles ... */
-    padding-top: 150%; /* Portrait aspect ratio */
+    /* Set a position context for the image */
+    position: relative; 
+    /* Remove the fixed height/max-width and use aspect ratio trick */
+    width: 100%;
+    overflow: hidden; 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    
+    /* 🌟 The Aspect Ratio Magic (e.g., 2:3 Portrait) 🌟 */
+    /* This creates a 2:3 aspect ratio container (200px wide, 300px tall) */
+    padding-top: 150%; /* (Height / Width) * 100 = (3 / 2) * 100 = 150% */
 }
 
-/* 3. The fix for the landscape item's container (Keep this too) */
-.gallery-item.landscape-item {
-    /* Set to a wide ratio (e.g., 16:9) */
-    padding-top: 56.25%;
-    /* Crucial: Ensure it only spans one column, even though it's wide */
-    grid-column: span 1;
-}
-
-/* 4. The image styles inside (assuming you have them) */
+/* Modify the image rule to fit the new container */
 .gallery-item img {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Ensures the image covers the area without distortion */
+    /* 🌟 Make the image fill the fixed-ratio container 🌟 */
+    position: absolute; /* Take image out of flow */
+    top: 0;
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    object-fit: cover; /* Ensures image covers the area without distortion */
+    display: block;
 }
 
-/* --- Centering Fix for Phone Landscape --- */
+/* -------------------------------------------------------------------------- */
+## 📱 Landscape Centering for Phones
 
-/* Use a media query to target narrow screens (e.g., max-width: 768px for phones/tablets) */
-@media (max-width: 768px) {
-    .gallery-wrapper {
-        /* Crucial Change: Switch to a single column.
-            We use a fixed or max width for the column to allow centering. */
-        grid-template-columns: minmax(0, 400px); /* Creates one column with max width of 400px */
-        
-        /* The centering property for Grid items on the main axis (horizontal) */
-        justify-content: center;
-
-        /* Optional: Center the content vertically if needed (align-items: center;) */
-    }
-
-    /* Ensure all items only span one column in this view */
-    .gallery-item {
-        grid-column: span 1;
-    }
-
-    /* If you want the landscape item to look better, you can give it a wider aspect ratio here */
-    .gallery-item.landscape-item {
-        /* You might even change the padding-top if the aspect ratio feels too tall/short */
-        padding-top: 56.25%; /* Keeping the 16:9 ratio */
-    }
+/* NEW CODE: Use a Media Query to target phone landscape orientation (devices up to 900px wide).
+  This centers the entire gallery wrapper horizontally on a wide screen.
+*/
+@media only screen and (max-width: 900px) and (orientation: landscape) {
+    
+    /* ⚠️ IMPORTANT: Replace '.gallery-container' with your actual wrapper class! */
+    .gallery-container {
+        /* Set a max width so the container doesn't stretch edge-to-edge */
+        max-width: 700px; 
+        /* Center the block element horizontally */
+        margin-left: auto;
+        margin-right: auto;
+        /* If your container uses flex/grid, you might also need this: */
+        /* justify-content: center; */
+    }
 }
