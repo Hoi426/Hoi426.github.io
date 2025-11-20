@@ -1,66 +1,19 @@
-/* 1. UNIVERSAL RESET (CRUCIAL) */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* ... (Sections 1 through 6 remain the same: Universal Reset, Body Setup, Header, Container, Item, and Image) ... */
 
-/* 2. BODY/HTML SETUP */
-html, body {
-    width: 100vw;
-    height: 100%;
-    /* Prevents horizontal scroll from the expanded content */
-    overflow-x: hidden; 
-    background-color: #f4f4f4; 
-}
-
-/* 3. Header Styling */
-header {
-    width: 100%;
-    text-align: center;
-    padding: 20px 0;
-}
-
-/* 4. Main Container: Base Flexbox setup for vertical stacking */
-.gallery-container {
-    display: flex;
-    flex-direction: column;
-    /* Use margin: 0 auto; on the items themselves to ensure centering */
-    align-items: center; 
-    width: 100%;
-    padding: 0;
-    gap: 10px; 
-}
-
-/* 5. Gallery Item: The wrapper for ALL images (including 001.jpg) */
-.gallery-item {
-    /* Base constraint for desktop and general centering */
-    max-width: 800px; 
-    width: 95%; 
-    margin: 0 auto; /* Ensures block-level centering */
-}
-
-/* 6. Image Scaling */
-.gallery-item img {
-    display: block;
-    width: 100%;
-    height: auto;
-}
-
-/* 7. LANDSCAPE MODE GAP FIX & CENTERING CORRECTION */
+/* 7. LANDSCAPE MODE GAP FIX & CENTERING CORRECTION (Revised) */
 @media screen and (orientation: landscape) and (max-width: 1000px) {
     
     .gallery-container {
-        /* Pushes the container to be 4% wider than the screen */
-        width: max(100%, 104vw); 
+        /* Pushes the container to be 3% wider than the screen (less aggressive width) */
+        width: max(100%, 103vw); 
         
-        /* AGGRESSIVE PUSH: Pulls the content into the hidden gap space. */
-        margin-left: -2vw;
-        margin-right: -2vw;
+        /* AGGRESSIVE PUSH: Applies a -1.5vw margin to pull content slightly less to the left. */
+        margin-left: -1.5vw;
+        margin-right: -1.5vw;
         
-        /* CENTERING CORRECTION: Shifts the content back to the right by half 
-           of the negative margin to align the center point with the screen center. */
-        transform: translateX(1vw); 
+        /* CENTERING CORRECTION: Moves the content back to the right by 0.75vw 
+           (half of the new -1.5vw left pull) to perfectly re-center the content. */
+        transform: translateX(0.75vw); 
         
         /* Remove desktop constraint in landscape */
         max-width: none; 
