@@ -1,25 +1,43 @@
-.gallery-item {
-    /* Set a position context for the image */
-    position: relative; 
-    /* Remove the fixed height/max-width and use aspect ratio trick */
-    width: 100%;
-    overflow: hidden; 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    
-    /* 🌟 The Aspect Ratio Magic (e.g., 2:3 Portrait) 🌟 */
-    /* This creates a 2:3 aspect ratio container (200px wide, 300px tall) */
-    padding-top: 150%; /* (Height / Width) * 100 = (3 / 2) * 100 = 150% */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
 }
 
-/* Modify the image rule to fit the new container */
-.gallery-item img {
-    /* 🌟 Make the image fill the fixed-ratio container 🌟 */
-    position: absolute; /* Take image out of flow */
-    top: 0;
-    left: 0;
-    width: 100%; 
-    height: 100%;
-    object-fit: cover; /* Ensures image covers the area without distortion */
-    display: block;
+header {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
 }
+
+h1 {
+    margin: 0;
+}
+
+/* --- Gallery Layout --- */
+.gallery-container {
+    display: grid;
+    /* Create a responsive grid: min 200px columns, filling space */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+    gap: 10px; /* Space between grid items */
+    padding: 10px;
+    max-width: 1200px; /* Max width for large screens */
+    margin: 0 auto; /* Center the container */
+}
+
+/* --- Gallery Item Styling --- */
+.gallery-item {
+    /* Define a fixed aspect ratio for each item (e.g., 4:3) */
+    /* This ensures consistent sizing, preventing 'left parts' from causing issues */
+    width: 100%;
+    padding-bottom: 100%; /* Creates a square container (1:1 ratio). Use 75% for 4:3 */
+    height: 0; /* Collapse height since padding determines the size */
+    overflow: hidden; /* Important: Hides any parts of the image that spill out */
+    position: relative; /* Needed to position the image absolutely inside */
+    background-color: #ccc; /* Placeholder background */
+}
+
+.gallery-item img {
+    position: absolute; /*
