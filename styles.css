@@ -1,54 +1,28 @@
-/* 1. UNIVERSAL RESET */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* ... (Sections 1 through 6 remain the same: Universal Reset, Body Setup, Header, Container, Item, and Image) ... */
 
-/* 2. BODY/HTML SETUP */
-html, body {
-    width: 100vw;
-    height: 100%;
-    overflow-x: hidden; 
-    background-color: #f4f4f4; 
-}
-
-/* 3. Header Styling */
-header {
-    width: 100%;
-    text-align: center;
-    padding: 20px 0;
-}
-
-/* --- THE FIX: Ensure Centering Works --- */
-
-/* 4. Main Container: Use Flexbox to stack and roughly center */
-.gallery-container {
-    display: flex;
-    flex-direction: column;
-    /* align-items: center; is redundant here if we use margin: 0 auto below, but kept for clarity */
-    align-items: center; 
-    width: 100%;
-    padding: 0;
-    gap: 10px; 
-    margin: 0 auto;
-}
-
-/* 5. Gallery Item: The wrapper for ALL images (INCLUDING 001.jpg) */
-.gallery-item {
-    /* Set the consistent maximum width for ALL content */
-    max-width: 600px; 
+/* 7. EXTREME LANDSCAPE MODE GAP FIX WITH CENTERING CORRECTION */
+/* This section applies the aggressive rules ONLY when the phone is wide (landscape) */
+@media screen and (orientation: landscape) and (max-width: 1000px) {
     
-    /* Ensure the item is responsive up to its max-width */
-    width: 95%; 
+    .gallery-container {
+        /* Pushes the container to be 4% wider than the screen */
+        width: max(100%, 104vw); 
+        
+        /* AGGRESSIVE PUSH: Applies a -2vw margin to pull content into the hidden gap. */
+        margin-left: -2vw;
+        margin-right: -2vw;
+        
+        /* THE CORRECTION: Move the content back to the right by 1vw 
+           (half of the total left pull) to perfectly re-center the overflowed content. */
+        transform: translateX(1vw); 
+        
+        /* Remove desktop constraint in landscape */
+        max-width: none; 
+    }
     
-    /* CRITICAL FIX: Explicitly center the block element */
-    margin: 0 auto; 
-}
-
-/* 6. Image Scaling: Ensure images fit perfectly inside the constrained item */
-.gallery-item img {
-    display: block;
-    width: 100%; /* Image scales to the width of the constrained .gallery-item */
-    height: auto; 
+    .gallery-item {
+        /* Items inside fill the new, expanded container */
+        width: 100%;
+        max-width: none; 
+    }
 }
