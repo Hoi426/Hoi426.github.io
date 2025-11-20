@@ -1,57 +1,49 @@
-/* --- Default Styling (Applied to Portrait Phones and Desktops) --- */
-
-/* 1. Global Setup */
-body {
+/* 1. UNIVERSAL RESET (CRITICAL FOR REMOVING DEFAULT GAPS) */
+* {
     margin: 0;
     padding: 0;
-    overflow-x: hidden; 
+    box-sizing: border-box; /* Ensures padding/borders don't increase element size */
+}
+
+/* 2. BODY/HTML SETUP */
+html, body {
+    width: 100vw; /* Hard limit to 100% of the viewport width */
+    height: 100%;
+    overflow-x: hidden; /* Prevents horizontal scrolling */
     background-color: #f4f4f4;
 }
 
-/* 2. Header Style */
+/* 3. Header Style */
 header {
     width: 100%;
     text-align: center;
     padding: 20px 0;
 }
 
-/* 3. Main Container: Center everything */
+/* 4. Main Container: Center everything */
 .gallery-container {
     display: flex;
     flex-direction: column;
-    align-items: center; /* **Centers** all items horizontally */
-    width: 100%; 
-    max-width: 100vw; 
-    padding: 0 5px;
-    box-sizing: border-box;
+    align-items: center; /* Centers all items */
+    width: 100vw; /* Use full viewport width */
+    padding: 0; /* Remove any padding on the container */
     gap: 10px; 
 }
 
-/* 4. Gallery Item: The wrapper for all images */
+/* 5. Gallery Item: The wrapper for all images */
 .gallery-item {
-    /* Base width for NARROW SCREENS (e.g., Portrait Phones) */
-    /* This allows images to fill most of the phone screen */
-    width: 95%; 
+    /* Set the width very high using viewport units to ensure minimal gap */
+    width: 99vw; 
     
-    /* Constraint for DESKTOP or large screens */
-    max-width: 600px; /* Adjust this value (e.g., 600px to 800px) */
-    box-sizing: border-box;
+    /* We still constrain the max width for large desktop viewing */
+    max-width: 800px; 
+    
+    margin: 0 auto; /* Ensures centering in case width is less than 99vw (on desktop) */
 }
 
-/* 5. Image Scaling */
+/* 6. Image Scaling: Apply to all images, including the landscape one */
 .gallery-item img {
     display: block;
-    width: 100%; /* Image fills its parent (.gallery-item) */
+    width: 100%; /* Image fills its parent (.gallery-item), which is 99vw wide */
     height: auto; 
-}
-
-/* --- Media Query: Override for Wide (Landscape) Screens --- */
-@media screen and (orientation: landscape) and (max-width: 900px) {
-    
-    /* When a phone is in landscape, make the images take up a much higher percentage 
-       of the screen width, reducing the left/right gap significantly. */
-    .gallery-item {
-        width: 85%; /* Use 85% of the screen width */
-        max-width: 90%; /* Increase the maximum constraint to allow wider content */
-    }
 }
