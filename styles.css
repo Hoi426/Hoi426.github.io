@@ -11,7 +11,7 @@ html, body {
     height: 100%;
     overflow-x: hidden; 
     /* Set back to white now that diagnosis is complete */
-    background-color: #FFFFFF !important; 
+    background-color: #FF0000 !important; 
 }
 
 /* 3. Header Styling */
@@ -19,7 +19,7 @@ header {
     width: 100%;
     text-align: center;
     padding: 20px 0;
-    background-color: #FFFFFF; 
+    background-color: #FF0000; 
 }
 
 /* 4. Main Container: Base Flexbox setup */
@@ -68,3 +68,4 @@ header {
         max-width: none; 
     }
 }
+
