@@ -1,49 +1,52 @@
-/* 1. UNIVERSAL RESET (CRITICAL FOR REMOVING DEFAULT GAPS) */
+/* 1. UNIVERSAL RESET (Kept from last step, ensures no default margins) */
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box; /* Ensures padding/borders don't increase element size */
+    box-sizing: border-box;
 }
 
-/* 2. BODY/HTML SETUP */
+/* 2. BODY/HTML SETUP (Kept from last step, crucial for clipping) */
 html, body {
-    width: 100vw; /* Hard limit to 100% of the viewport width */
+    width: 100vw; 
     height: 100%;
-    overflow-x: hidden; /* Prevents horizontal scrolling */
+    overflow-x: hidden; /* CRITICAL: Clips content that exceeds 100vw */
     background-color: #f4f4f4;
 }
 
-/* 3. Header Style */
-header {
-    width: 100%;
-    text-align: center;
-    padding: 20px 0;
-}
-
-/* 4. Main Container: Center everything */
+/* 3. Main Container and Gallery Item Setup */
 .gallery-container {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centers all items */
-    width: 100vw; /* Use full viewport width */
-    padding: 0; /* Remove any padding on the container */
+    align-items: center; 
+    width: 100vw; 
+    padding: 0; 
     gap: 10px; 
 }
 
-/* 5. Gallery Item: The wrapper for all images */
 .gallery-item {
-    /* Set the width very high using viewport units to ensure minimal gap */
+    /* Base width: 99vw for near edge-to-edge display */
     width: 99vw; 
-    
-    /* We still constrain the max width for large desktop viewing */
     max-width: 800px; 
-    
-    margin: 0 auto; /* Ensures centering in case width is less than 99vw (on desktop) */
+    margin: 0 auto; 
 }
 
-/* 6. Image Scaling: Apply to all images, including the landscape one */
+/* 4. Image Scaling */
 .gallery-item img {
     display: block;
-    width: 100%; /* Image fills its parent (.gallery-item), which is 99vw wide */
+    width: 100%; 
     height: auto; 
+}
+
+/* 5. TARGETED FIX: Targeting Portrait Images (Those without the .is-landscape class) */
+.gallery-item img:not(.is-landscape) {
+    /* In portrait mode, these images fill 99vw.
+       In landscape mode, these images are centered and constrained.
+       This fix makes them slightly wider than the container (99vw) 
+       to visually hide the system-level gap. 
+    */
+    width: 100.5vw; /* Make the image 0.5% wider than the viewport */
+    margin-left: -0.25vw; /* Shift it slightly to the left to ensure centered visual effect */
+    
+    /* We still need a constraint for desktop, which should be 100% of the parent max-width */
+    max-width: 100%;
 }
