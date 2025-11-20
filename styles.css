@@ -1,24 +1,14 @@
-/* ... (Sections 1 through 6 remain the same: Universal Reset, Body Setup, Header, Container, Item, and Image) ... */
-
-/* 7. ULTRA-AGGRESSIVE LANDSCAPE MODE GAP FIX */
 @media screen and (orientation: landscape) and (max-width: 1000px) {
     
     .gallery-container {
-        /* Pushing the width out to 101.5vw */
-        width: max(100%, 101.5vw); 
+        /* Set wide width */
+        width: max(100%, 102vw); 
         
-        /* Aggressive Negative Margins: Push the content further out. 
-           (0.75vw negative margin total) */
-        margin-left: -0.75vw;
-        margin-right: -0.75vw;
+        /* Increase negative margin */
+        margin-left: -1.0vw;
+        margin-right: -1.0vw;
         
-        /* Remove desktop constraint in landscape */
         max-width: none; 
     }
-    
-    .gallery-item {
-        /* Items inside fill the new, expanded container */
-        width: 100%;
-        max-width: none; 
-    }
+    /* ... rest of the media query ... */
 }
