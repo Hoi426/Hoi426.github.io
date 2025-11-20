@@ -1,43 +1,64 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-}
+/* In your styles.css file */
 
-header {
-    background-color: #333;
-    color: white;
-    padding: 20px;
-    text-align: center;
-}
-
-h1 {
-    margin: 0;
-}
-
-/* --- Gallery Layout --- */
+/* 1. Use Flexbox on the container */
 .gallery-container {
-    display: grid;
-    /* Create a responsive grid: min 200px columns, filling space */
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
-    gap: 10px; /* Space between grid items */
+    /* Enables Flexbox layout for the children (gallery-item divs) */
+    display: flex; 
+    
+    /* Allows the items to wrap onto the next line if there isn't enough horizontal space */
+    flex-wrap: wrap; 
+    
+    /* Center the container content horizontally (optional, but often helpful) */
+    justify-content: center; 
+    
+    /* Add some spacing around the gallery items */
+    gap: 10px; 
     padding: 10px;
-    max-width: 1200px; /* Max width for large screens */
-    margin: 0 auto; /* Center the container */
 }
 
-/* --- Gallery Item Styling --- */
+/* 2. Define the size and spacing for each gallery item */
 .gallery-item {
-    /* Define a fixed aspect ratio for each item (e.g., 4:3) */
-    /* This ensures consistent sizing, preventing 'left parts' from causing issues */
-    width: 100%;
-    padding-bottom: 100%; /* Creates a square container (1:1 ratio). Use 75% for 4:3 */
-    height: 0; /* Collapse height since padding determines the size */
-    overflow: hidden; /* Important: Hides any parts of the image that spill out */
-    position: relative; /* Needed to position the image absolutely inside */
-    background-color: #ccc; /* Placeholder background */
+    /* * You need to set a width for the items to determine how many fit on one row.
+     * To fit, for example, 5 images per row, use calc(20% - <margin/gap>).
+     * Since we used a gap of 10px, let's aim for 4 images per row for good spacing.
+     * For 4 items, the base width is 25%.
+     */
+    width: calc(25% - 10px); /* 25% for 4 items, minus the gap to prevent overflow */
+    
+    /* Set a minimum width for better responsiveness on small screens (optional) */
+    min-width: 150px; 
+    
+    /* This is crucial for making the images inside fill the item container */
+    overflow: hidden; 
 }
 
+/* 3. Ensure the images fill their item container and maintain aspect ratio */
 .gallery-item img {
-    position: absolute; /*
+    /* Make the image take up the full width of its parent (.gallery-item) */
+    width: 100%; 
+    
+    /* Set max-height and use object-fit to ensure all images have a consistent height 
+       without stretching, cropping them if necessary. */
+    height: auto; /* Allow height to adjust naturally, which might result in uneven rows. 
+                      If you want perfectly even rows, use a fixed height and object-fit: cover. */
+    /* max-height: 200px; /* Example fixed height for uniform look */
+    /* object-fit: cover; */ /* Only use with a fixed height */
+    
+    /* Remove vertical space often caused by inline images */
+    display: block; 
+}
+
+/* You might want to add a media query for smaller screens */
+@media (max-width: 768px) {
+    .gallery-item {
+        /* On tablets, show 3 items per row (base width 33.33%) */
+        width: calc(33.333% - 10px); 
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-item {
+        /* On phones, show 2 items per row (base width 50%) */
+        width: calc(50% - 10px); 
+    }
+}
