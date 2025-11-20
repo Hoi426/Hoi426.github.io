@@ -1,44 +1,28 @@
+/* 1. Define the main wrapper as a Grid */
+.gallery-wrapper {
+    display: grid;
+    /* Create three equal-width columns (adjust 3 to your desired number of columns) */
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 10px; /* Space between items */
+}
+
+/* 2. Your existing .gallery-item styles (keep these) */
 .gallery-item {
-    /* Set a position context for the image */
-    position: relative; 
-    width: 100%;
-    overflow: hidden; 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    
-    /* 🌟 DEFAULT: 2:3 Portrait Aspect Ratio 🌟 */
-    padding-top: 150%; 
+    position: relative; 
+    width: 100%; /* Important: This means 100% of the grid column */
+    /* ... other styles ... */
+    padding-top: 150%; /* Portrait aspect ratio */
 }
 
-/* Modify the image rule to fit the new container */
-.gallery-item img {
-    /* Make the image fill the fixed-ratio container by default */
-    position: absolute; 
-    top: 0;
-    left: 0;
-    width: 100%; 
-    height: 100%;
-    
-    /* Ensures image covers the area without distortion */
-    object-fit: cover; 
-    display: block;
-}
-
-/* ---------------------------------------------------- */
-/* 🖼️ FIX: Targeted Style for the Single Landscape Container */
-/* ---------------------------------------------------- */
-/* This rule overrides the aspect ratio for the container holding the landscape image. */
+/* 3. The fix for the landscape item's container (Keep this too) */
 .gallery-item.landscape-item {
-    /* Set to a wide ratio (e.g., 16:9 = 9/16 = 0.5625) 
-       This prevents the wide image from stretching the entire gallery column width. */
+    /* Set to a wide ratio (e.g., 16:9) */
     padding-top: 56.25%; 
+    /* Crucial: Ensure it only spans one column, even though it's wide */
+    grid-column: span 1; 
 }
 
-/* Ensure the image inside this new container uses the standard fit */
-.gallery-item.landscape-item img {
-    /* Set back to default fit for this container */
-    object-fit: cover; 
-    
-    /* Remove any previous centering rules */
-    transform: none;
+/* 4. The image styles inside */
+.gallery-item img {
+    /* ... your positioning and object-fit: cover styles ... */
 }
