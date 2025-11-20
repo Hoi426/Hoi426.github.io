@@ -1,64 +1,16 @@
-/* 1. UNIVERSAL RESET (Removing all default margins/padding) */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* ... (Sections 1 through 6 remain the same: Universal Reset, Body Setup, Header, Container, Item, and Image) ... */
 
-/* 2. BODY/HTML SETUP (Uses viewport units and hides horizontal overflow) */
-html, body {
-    width: 100vw;
-    height: 100%;
-    overflow-x: hidden; 
-    background-color: #f4f4f4;
-}
-
-/* 3. Header Styling */
-header {
-    width: 100%;
-    text-align: center;
-    padding: 20px 0;
-}
-
-/* 4. Main Container: Sets up vertical stacking and centering */
-.gallery-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centers items on the page */
-    width: 100%;
-    padding: 0;
-    gap: 10px; 
-    margin: 0 auto;
-}
-
-/* 5. Gallery Item: Constrains all images for desktop */
-.gallery-item {
-    width: 100%;
-    max-width: 800px; /* Constraint for large desktop screens */
-    margin: 0;
-}
-
-/* 6. Image Scaling */
-.gallery-item img {
-    display: block;
-    width: 100%;
-    height: auto;
-}
-
----
-
-/* 7. ADAPTIVE LANDSCAPE MODE GAP FIX */
+/* 7. ULTRA-AGGRESSIVE LANDSCAPE MODE GAP FIX */
 @media screen and (orientation: landscape) and (max-width: 1000px) {
     
     .gallery-container {
-        /* Use a width calculation: take the maximum of 100% OR 101vw. 
-           This is an attempt to force the container to be slightly larger than the screen size, 
-           working with the negative margins to fill the system gap. */
-        width: max(100%, 101vw); 
+        /* Pushing the width out to 101.5vw */
+        width: max(100%, 101.5vw); 
         
-        /* Aggressive Negative Margins: Push the content outward into the gap space */
-        margin-left: -0.5vw;
-        margin-right: -0.5vw;
+        /* Aggressive Negative Margins: Push the content further out. 
+           (0.75vw negative margin total) */
+        margin-left: -0.75vw;
+        margin-right: -0.75vw;
         
         /* Remove desktop constraint in landscape */
         max-width: none; 
