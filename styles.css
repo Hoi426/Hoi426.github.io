@@ -1,0 +1,60 @@
+/* ------------------------------------------- */
+/* 1. Base Styles & Comfortable Layout */
+/* ------------------------------------------- */
+
+body {
+    /* Set a comfortable light background and standard font */
+    background-color: #f5f5f5; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+header {
+    text-align: center;
+    padding: 30px 20px 10px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #ddd;
+}
+
+h1 {
+    font-size: 1.8em;
+    color: #333;
+}
+
+/* ------------------------------------------- */
+/* 2. Gallery Container (Flexbox) */
+/* ------------------------------------------- */
+
+.gallery-container {
+    /* Center the main gallery on the page */
+    max-width: 1400px; /* Max width for comfortable viewing on large monitors */
+    margin: 20px auto;
+    padding: 20px;
+    
+    /* Layout for grid-like arrangement */
+    display: flex;
+    flex-wrap: wrap; /* Allows images to flow to the next line */
+    justify-content: center; /* Centers the images horizontally */
+    gap: 20px; /* Comfortable space between each image */
+}
+
+/* ------------------------------------------- */
+/* 3. Image Item Styling and Sizing */
+/* ------------------------------------------- */
+
+.gallery-item {
+    /* Base maximum width for PORTRAIT images (1200x1669) */
+    /* This prevents the tall images from being too wide and dominating the screen */
+    max-width: 350px; 
+    width: 100%; /* Allows shrinking on small screens */
+    
+    overflow: hidden; 
+    background-color: #ffffff;
+    border-radius: 8px; /* Soft edges for visual comfort */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Special Handling for Landscape Image (001.jpg) */
+/* Since it's
