@@ -1,48 +1,49 @@
-/* --- Your Existing CSS --- */
-
-.gallery-item {
-    /* Set a position context for the image */
-    position: relative; 
-    /* Remove the fixed height/max-width and use aspect ratio trick */
-    width: 100%;
-    overflow: hidden; 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    
-    /* 🌟 The Aspect Ratio Magic (e.g., 2:3 Portrait) 🌟 */
-    /* This creates a 2:3 aspect ratio container (200px wide, 300px tall) */
-    padding-top: 150%; /* (Height / Width) * 100 = (3 / 2) * 100 = 150% */
+/* --- Basic setup for the whole page --- */
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #f4f4f4; /* Optional: adds a background */
 }
 
-/* Modify the image rule to fit the new container */
+/* --- Gallery Container: Use Grid for Consistent Layout --- */
+.gallery-container {
+    display: grid;
+    /* Define a flexible column layout: 2 columns on small screens, 3 or more on larger screens */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 10px; /* Space between items */
+    padding: 10px;
+    max-width: 1200px; /* Optional: prevents container from getting too wide on huge screens */
+    margin: 0 auto; /* Center the container */
+}
+
+/* --- Gallery Item: The wrapper for each image --- */
+.gallery-item {
+    /* Define a fixed aspect ratio for the container to prevent layout shifts. */
+    /* This makes every item look like a square placeholder, regardless of the image inside. */
+    /* If you know all portraits are 3:4, you could use padding-bottom: 133.33%; */
+    /* For a general gallery, a square (1:1) placeholder works best. */
+    position: relative;
+    padding-bottom: 100%; /* Creates a 1:1 square aspect ratio based on width */
+    overflow: hidden; /* Important: keeps content inside the defined boundary */
+}
+
+/* --- Image Styling: Ensure images fit the item boundaries --- */
 .gallery-item img {
-    /* 🌟 Make the image fill the fixed-ratio container 🌟 */
-    position: absolute; /* Take image out of flow */
+    position: absolute; /* Allows it to fill the parent .gallery-item */
     top: 0;
-    left: 5;
-    width: 100%; 
+    left: 0;
+    width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures image covers the area without distortion */
+    /* Key fix: object-fit property */
+    /* 'contain' ensures the whole image is visible (will leave letterboxing/gaps) */
+    /* 'cover' ensures the item is filled (will crop the image) */
+    /* I recommend 'contain' for a gallery where you need to see the whole image: */
+    object-fit: contain;
     display: block;
 }
 
-/* -------------------------------------------------------------------------- */
-## 📱 Landscape Centering for Phones
-
-/* NEW CODE: Use a Media Query to target phone landscape orientation (devices up to 900px wide).
-  This centers the entire gallery wrapper horizontally on a wide screen.
-*/
-@media only screen and (max-width: 900px) and (orientation: landscape) {
-    
-    /* ⚠️ IMPORTANT: Replace '.gallery-container' with your actual wrapper class! */
-    .gallery-container {
-        /* Set a max width so the container doesn't stretch edge-to-edge */
-        max-width: 700px; 
-        /* Center the block element horizontally */
-        margin-left: auto;
-        margin-right: auto;
-        /* If your container uses flex/grid, you might also need this: */
-        /* justify-content: center; */
-    }
-}
-
+/* --- Special handling for landscape images (like 001.jpg) --- */
+.gallery-item img.is-landscape {
+    /* If you want the landscape image to span two columns: */
+    /* Note: This might break the sequential flow if you are viewing it as a comic. */
+    /* grid-column:
