@@ -1,63 +1,54 @@
-/* In your styles.css file */
-
-/* 1. Set up the Container for Horizontal Flow */
+/* 1. Gallery Container Setup: Enables Horizontal Scroll */
 .gallery-container {
-    /* Enables Flexbox layout */
     display: flex; 
     
-    /* *** CRUCIAL: Prevents items from wrapping to the next line *** */
+    /* Forces items onto a single line */
     flex-wrap: nowrap; 
     
-    /* *** CRUCIAL: Allows content to scroll horizontally if it overflows the screen *** */
-    overflow-x: auto; 
+    /* Allows user to scroll left/right */
+    overflow-x: scroll; 
     
-    /* Hides vertical scrollbar (just in case) */
-    overflow-y: hidden;
-    
-    /* Adds a small space between images for visual separation */
-    gap: 10px; 
-    padding: 10px;
-    
-    /* Ensures the container takes up the full width of its parent */
-    width: 100%;
-}
-
-/* 2. Style the Gallery Items */
-.gallery-item {
-    /* *** CRUCIAL: Prevents items from shrinking or growing, forcing them to maintain their size *** */
-    flex-shrink: 0;
-    
-    /* Set a fixed or minimum width for each item (e.g., 300px) */
-    width: 300px; 
-    
-    /* Set max height to ensure all items are consistently sized in height (adjust as needed) */
-    max-height: 400px;
-    
-    /* Allows you to vertically align the content if needed */
-    display: flex; 
-    align-items: center; 
-}
-
-/* 3. Style the Images to Prevent Cropping/Messy Sizing */
-.gallery-item img {
-    /* Make the image take up the full width of its container item */
-    width: 100%; 
-    
-    /* Allow the height to adjust based on the original image aspect ratio */
+    /* Ensures the container doesn't set a height limit that's too small */
     height: auto; 
     
-    /* *** CRUCIAL: Limits the image's height to prevent it from exceeding the item's max-height (if set) *** */
-    max-height: 100%;
+    /* Removes the default scrollbar area from the view */
+    padding: 10px 0; 
     
-    /* Ensure the entire image fits within the bounds without being cropped */
-    object-fit: contain; 
+    /* Spacing between images */
+    gap: 15px; 
+}
+
+/* 2. Gallery Item Setup: Defines the Size and Behavior of the Wrapper */
+.gallery-item {
+    /* Prevents the item from shrinking when content overflows */
+    flex-shrink: 0; 
     
-    /* Remove vertical space often caused by inline images */
+    /* Set a reasonable, fixed width for each image thumbnail. Adjust this value! */
+    width: 300px; 
+    
+    /* Allows the item's height to be determined by the image content */
+    height: auto; 
+}
+
+/* 3. Image Setup: Crucial for Preventing Cropping */
+.gallery-item img {
+    /* Image takes the full width of its 300px container */
+    width: 100%; 
+    
+    /* *** CRUCIAL: Allows the image height to scale proportionally based on its content (aspect ratio) *** */
+    height: auto; 
+    
+    /* *** IMPORTANT: Ensures the image is not cropped. 
+       If the image container had a fixed height, 'contain' would show the whole image 
+       and letterbox it. Since the height is 'auto', it ensures the full, original image 
+       proportion is preserved. *** */
+    object-fit: contain;
+    
+    /* Remove base line spacing */
     display: block; 
 }
 
-/* Special rule for the landscape image, if you want it wider */
+/* Optional: If you want landscape images to be wider */
 .gallery-item img.is-landscape {
-    /* Make landscape images wider (e.g., 1.5 times the standard width) */
-    min-width: 450px; 
+    width: 450px;
 }
