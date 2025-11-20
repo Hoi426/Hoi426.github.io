@@ -1,63 +1,52 @@
 /* ------------------------------------------- */
-/* 1. Base Styles & General Container */
+/* A Simple, Safe CSS for Full-Width Stacking */
 /* ------------------------------------------- */
 
 body {
-    /* Minimize margins/padding on the body for maximum screen usage */
-    background-color: #f5f5f5; 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #f5f5f5; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 header {
     text-align: center;
     padding: 30px 20px 10px;
-    background-color: #ffffff;
-    border-bottom: 1px solid #ddd;
 }
 
-/* ------------------------------------------- */
-/* 2. Gallery Container (Max Width Stacking) */
-/* ------------------------------------------- */
-
 .gallery-container {
-    /* Set the maximum width to 95% of the viewport width (VW) */
-    /* This makes the images very large, spanning most of the screen */
+    /* Set the container to occupy most of the viewport, centering it */
     max-width: 95vw; 
-    margin: 20px auto; /* Center the container with vertical spacing */
+    margin: 20px auto; 
     padding: 0;
     
     /* Layout: Forces a single vertical column */
     display: flex;
     flex-direction: column; 
-    align-items: center; /* Center the images inside the container */
-    gap: 30px; /* Comfortable vertical space between images */
+    align-items: center; 
+    gap: 30px; 
 }
 
-/* ------------------------------------------- */
-/* 3. Image Item Sizing (No Max Constraint) */
-/* ------------------------------------------- */
-
 .gallery-item {
-    /* Allow the item to stretch to the container's max-width (95vw) */
+    /* Allow the item to stretch to 100% of the container width */
     max-width: 100%; 
     width: 100%; 
-    
     overflow: hidden; 
-    background-color: #ffffff;
     border-radius: 8px; 
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); 
 }
 
-/* 🖼️ The key to preserving aspect ratio 🖼️ */
+/* THE CRITICAL PART: Image rendering */
 .gallery-item img {
     display: block;
-    width: 100%; /* Forces the image to fill the maximum width */
-    **height: auto;** /* **CRUCIAL:** Tells the browser to automatically calculate the height based on the image's natural aspect ratio, preventing distortion. */
+    width: 100%; 
+    /* Ensures no distortion and the full image is displayed */
+    height: auto; 
     transition: transform 0.3s ease; 
 }
 
-/* ------------------------------------------- */
-/* 4. Hover Effect */
-/* -------------------------------------------
+/* Simple hover effect */
+.gallery-item:hover img {
+    transform: scale(1.01);
+    cursor: zoom-in; 
+}
