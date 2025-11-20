@@ -1,25 +1,46 @@
-.gallery-item {
-    /* Set a position context for the image */
-    position: relative; 
-    /* Remove the fixed height/max-width and use aspect ratio trick */
-    width: 100%;
-    overflow: hidden; 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    
-    /* 🌟 The Aspect Ratio Magic (e.g., 2:3 Portrait) 🌟 */
-    /* This creates a 2:3 aspect ratio container (200px wide, 300px tall) */
-    padding-top: 150%; /* (Height / Width) * 100 = (3 / 2) * 100 = 150% */
+/* Ensure the container is a single, horizontally scrolling row */
+.gallery-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: scroll !important; 
+    overflow-y: hidden !important;
+    width: 100% !important;
+    height: auto !important; /* Crucial: Must NOT be fixed or too small */
+    padding: 10px 0 !important;
+    gap: 15px !important; 
 }
 
-/* Modify the image rule to fit the new container */
+/* Ensure each item does not shrink and sets the width */
+.gallery-item {
+    flex-shrink: 0 !important;
+    
+    /* Set the standard visible width for each image item */
+    width: 300px !important; 
+    
+    /* Crucial: Must allow the height to scale with the content */
+    height: auto !important; 
+}
+
+/* Ensure the image scales fully within the item and is not cropped */
 .gallery-item img {
-    /* 🌟 Make the image fill the fixed-ratio container 🌟 */
-    position: absolute; /* Take image out of flow */
-    top: 0;
-    left: 0;
-    width: 100%; 
-    height: 100%;
-    object-fit: cover; /* Ensures image covers the area without distortion */
-    display: block;
+    /* Scale the image to fit the 300px width */
+    width: 100% !important; 
+    
+    /* CRUCIAL: Allow the height to scale proportionally based on the width */
+    height: auto !important; 
+    
+    /* Display the entire image, fitting it within the bounds (not cropping) */
+    object-fit: contain !important;
+    
+    /* Remove vertical space often caused by inline images */
+    display: block !important; 
+    
+    /* Ensure the image cannot be accidentally hidden */
+    max-height: none !important; 
+    min-height: 0 !important;
+}
+
+/* Optional: Landscape images get wider */
+.gallery-item img.is-landscape {
+    width: 450px !important;
 }
