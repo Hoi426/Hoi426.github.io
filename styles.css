@@ -1,26 +1,70 @@
-/* ... (Sections 1 through 6 remain the same: Universal Reset, Body Setup, Header, Container, Item, and Image) ... */
+/* 1. UNIVERSAL RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-/* 7. LANDSCAPE MODE GAP FIX & CENTERING CORRECTION (Maximized Push) */
+/* 2. BODY/HTML SETUP */
+html, body {
+    width: 100vw;
+    height: 100%;
+    overflow-x: hidden; 
+    /* FINAL FIX: Set the background to white to hide the final tiny gaps */
+    background-color: #FFFFFF; 
+}
+
+/* 3. Header Styling */
+header {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* 4. Main Container: Base Flexbox setup */
+.gallery-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers the content blocks */
+    width: 100%;
+    padding: 0;
+    gap: 10px; 
+    margin: 0 auto;
+}
+
+/* 5. Gallery Item: The wrapper for ALL images (INCLUDING 001.jpg) */
+.gallery-item {
+    /* Set the consistent maximum width for ALL content (e.g., for desktop viewing) */
+    max-width: 800px; 
+    
+    /* Ensure the item is responsive and centered */
+    width: 95%; 
+    margin: 0 auto; 
+}
+
+/* 6. Image Scaling */
+.gallery-item img {
+    display: block;
+    width: 100%; /* Image scales to the width of the constrained .gallery-item */
+    height: auto; 
+}
+
+/* 7. BALANCED LANDSCAPE MODE CENTERING (Stable approach) */
 @media screen and (orientation: landscape) and (max-width: 1000px) {
     
     .gallery-container {
-        /* Keep the slightly less aggressive width */
-        width: max(100%, 103vw); 
-        
-        /* Keep the negative margins */
-        margin-left: -1.5vw;
-        margin-right: -1.5vw;
-        
-        /* EXTREME CORRECTION: Set shift equal to the negative margin to fully recenter the content. */
-        transform: translateX(1.5vw); 
-        
-        /* Remove desktop constraint in landscape */
+        /* Use a slightly wide percentage for better fill in landscape */
+        width: 98%; 
         max-width: none; 
+        /* Ensure no aggressive shifts are active here */
+        transform: none;
+        margin: 0 auto;
     }
     
     .gallery-item {
-        /* Items inside fill the new, expanded container */
+        /* Ensure items inside fill the container width */
         width: 100%;
         max-width: none; 
+        margin: 0 auto;
     }
 }
