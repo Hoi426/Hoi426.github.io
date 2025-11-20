@@ -1,1 +1,101 @@
+/*
+ * Responsive Photo Gallery Styles
+ * Optimized for mobile readability, especially in landscape mode.
+ */
 
+/* 1. General Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #0d1117; /* Dark background for easy reading */
+    color: #c9d1d9; /* Light text color */
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #161b22;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    margin-bottom: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #58a6ff; /* Highlight color for title */
+}
+
+/* 2. Gallery Container */
+.gallery-container {
+    padding: 10px;
+    max-width: 1000px; /* Max width for large screens */
+    margin: 0 auto;
+    /* Use grid for the main layout to easily manage spacing */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px; /* Consistent spacing between items */
+}
+
+/* 3. Gallery Item Styling */
+.gallery-item {
+    background-color: #161b22;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s ease-in-out;
+}
+
+.gallery-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
+}
+
+.gallery-item img {
+    display: block;
+    width: 100%;
+    /* Ensure the image scales down but maintains integrity */
+    object-fit: contain;
+    height: auto;
+    /* Reset aspect-ratio property on portrait images (default) */
+    aspect-ratio: 1200 / 1669; /* ~3:4 Aspect Ratio for most images */
+}
+
+/* 4. Specific Aspect Ratio Handling */
+
+/* Image 001 (is-landscape): 1600x1200 (4:3) */
+.gallery-item img.is-landscape {
+    /* Override the default portrait ratio for landscape images */
+    aspect-ratio: 1600 / 1200; /* 4:3 Aspect Ratio */
+}
+
+
+/* 5. Mobile & Landscape Optimizations */
+
+/* General Mobile (Portrait & Landscape) */
+@media (max-width: 600px) {
+    .gallery-container {
+        /* On small screens, force a single column for comfortable reading/scrolling */
+        grid-template-columns: 1fr;
+        padding: 5px;
+    }
+
+    h1 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Specific Optimization for Phone Landscape Mode */
+@media (max-width: 900px) and (min-width: 600px) and (orientation: landscape) {
+    .gallery-container {
+        /* In landscape view on larger phones/small tablets, switch to a 2-column layout. */
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        padding: 15px;
+    }
+}
