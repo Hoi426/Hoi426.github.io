@@ -167,3 +167,75 @@ function processGrading() {
             });
             
             // Logic điểm đặc biệt 1/10, 2/10, 5/10, 10/10
+            let factor = 0;
+            if (subCorrect === 1) factor = 0.1;
+            else if (subCorrect === 2) factor = 0.2;
+            else if (subCorrect === 3) factor = 0.5;
+            else if (subCorrect === 4) factor = 1.0;
+            userResponses[item.id].points = pointsPerQuest * factor;
+        }
+        else if (activeCategory === 'short') {
+            const val = document.getElementById(`short_${item.id}`).value.trim();
+            userResponses[item.id].selected = val;
+            if (val === item.correct) userResponses[item.id].points = pointsPerQuest;
+        }
+        rawScore += userResponses[item.id].points;
+    });
+
+    const finalScore = Math.round(rawScore * 10) / 10;
+    document.getElementById('quiz-view').style.display = 'none';
+    document.getElementById('result-area').style.display = 'block';
+    document.getElementById('display-score').innerText = finalScore + "/10";
+    
+    // Lưu kết quả vào LocalStorage
+    localStorage.setItem('last_result', JSON.stringify({score: finalScore, type: activeCategory}));
+}
+
+function renderReview(mode) {
+    const reviewDiv = document.getElementById('review-content');
+    reviewDiv.innerHTML = `<h3>Chế độ xem: ${mode === 'all' ? 'Toàn bộ đề gốc' : (mode === 'correct' ? 'Đáp án đúng' : 'Đáp án sai')}</h3>`;
+    
+    // Chọn danh sách để hiển thị
+    let listToDisplay = (mode === 'all') ? rawData[activeCategory] : currentQuestions;
+
+    listToDisplay.forEach((item, index) => {
+        const res = userResponses[item.id];
+        const isCorrect = res.points >= (10 / currentQuestions.length) * 0.9; // Tạm tính là đúng nếu gần tối đa
+        
+        // Lọc theo chế độ
+        if (mode === 'correct' && res.points === 0) return;
+        if (mode === 'wrong' && res.points > 0 && res.points >= (10/currentQuestions.length)) return;
+
+        let html = `<div class="question-item">
+            <span class="status-tag ${res.points > 0 ? 'tag-correct' : 'tag-wrong'}">
+                Điểm: ${Math.round(res.points*100)/100}
+            </span>
+            <p><b>Câu ${index+1}:</b> ${item.q}</p>`;
+
+        if (activeCategory === 'choice') {
+            item.options.forEach((opt, i) => {
+                let cls = "";
+                if (i === item.correct) cls = "correct-highlight";
+                if (i === res.selected && i !== item.correct) cls = "wrong-highlight";
+                html += `<div class="ans-option ${cls}">${opt} ${i === item.correct ? '✓' : ''}</div>`;
+            });
+        } else if (activeCategory === 'tf') {
+            item.sub.forEach((s, i) => {
+                const userVal = res.details[i];
+                const statusCls = (userVal === s.a) ? 'tag-correct' : 'tag-wrong';
+                html += `<div style="margin-left:20px;">
+                    ${s.t} -> <b>${s.a ? 'Đúng' : 'Sai'}</b> 
+                    <span class="status-tag ${statusCls}">${userVal === null ? 'Không chọn' : (userVal ? 'Bạn chọn Đ' : 'Bạn chọn S')}</span>
+                </div>`;
+            });
+        } else if (activeCategory === 'short') {
+            html += `<p>Đáp án của bạn: <b class="${res.points > 0 ? '' : 'tag-wrong'}">${res.selected || 'Trống'}</b></p>`;
+            html += `<p>Đáp án đúng: <b class="tag-correct">${item.correct}</b></p>`;
+        }
+
+        reviewDiv.innerHTML += html + `</div>`;
+    });
+}
+</script>
+</body>
+</html>
