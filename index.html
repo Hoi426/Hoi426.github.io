@@ -2,21 +2,18 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ thống Thi Online - Cập nhật Parser & Fix Bug</title>
+    <title>Hệ thống Thi Online - Đảo câu hỏi & Đáp án</title>
     <style>
         :root { --p: #2c3e50; --s: #27ae60; --d: #e74c3c; --bg: #f8f9fa; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 20px; }
         .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .exam-title { text-align: center; color: var(--p); font-size: 24px; font-weight: bold; margin-bottom: 30px; border-bottom: 3px solid var(--p); padding-bottom: 10px; }
-        
         .box { background: #fff; border: 2px solid var(--p); border-radius: 10px; padding: 30px; margin-bottom: 15px; text-align: center; cursor: pointer; transition: 0.3s; font-size: 18px; font-weight: bold; }
         .box:hover { background: var(--p); color: white; }
-
         .question-item { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 8px; }
         .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
         .btn-submit { background: var(--s); color: white; width: 100%; font-size: 18px; }
         .btn-view { background: #3498db; color: white; }
-        
         #result-screen { display: none; text-align: center; }
         .score-big { font-size: 50px; color: #e67e22; margin: 10px 0; }
         .correct-ans { color: var(--s); font-weight: bold; }
@@ -56,9 +53,7 @@
 <script>
 // --- DỮ LIỆU GIÁO VIÊN ---
 const RawData = {
-    title: "KIỂM TRA LỊCH SỬ & ĐỊNH DẠNG ORBITAL",
-    
-    // TRẮC NGHIỆM: Dán đề và nhập đáp án kiểu 69C 70B
+    title: "KIỂM TRA LỊCH SỬ - HỆ THỐNG ĐẢO ĐÁP ÁN",
     choice_raw: `
 Câu 1. Trong năm đầu sau Cách mạng tháng Tám năm 1945, nước Việt Nam Dân chủ Cộng hòa đứng trước khó khăn nào? 
 A. Quân Pháp trở lại Đông Dương theo quy định của Hội nghị Pốtxđam. 
@@ -441,11 +436,11 @@ A. Mỹ thi hành Hiệp định Giơ-ne-vơ.
 B. quyền tự do dân chủ, cơm áo, hòa bình.
 C. Mỹ rút về nước và đòi tự do dân chủ.
 D. chống sự đàn áp của chính quyền Diệm.
+ 
 
     `,
     choice_ans: "1C 2C 3A 4C 5A 6D 7A 8D 9D 10C 11C 12A 13B 14B 15D 16D 17B 18A 19D 20B 21C 22C 25C 26B 27D 28B 29C 30C 31C 32B 33C 34D 35B 36A 37C 38B 39C 40A 41B 42A 43D 44B 45B 46C 47A 48D 49D 50C 51A 52A 53A 54A 55D 56C 57A 58A 59A 60A 61D 62B 63A 64A 65C 66C 67C 68B 69C 70C", 
 
-    // ĐÚNG/SAI: Nhập đáp án kiểu 71-ĐSSS
     tf_raw: `
 Câu 71: Đọc đoạn tư liệu sau đây, trong mỗi ý A, B, C, D, học sinh chọn đúng hoặc sai.
 “…Rạng sáng ngày 23/9/1945, được sự giúp đỡ của quân đội Anh, thực dân Pháp chính thức bội ước, cho hàng ngàn lính nổ súng tấn công, đánh chiếm Sài Gòn, chính thức mở ra cuộc chiến tranh xâm lược nước ta lần thứ hai.  “Sơn hà nguy biến”, Xứ ủy, Ủy ban nhân dân, Ủy ban Kháng chiến Nam bộ và Đại diện Tổng bộ Việt Minh đã thống nhất ra Lời kêu gọi  đồng bào cầm vũ khí đánh đuổi quân xâm lược. Nam Bộ bước vào cuộc chiến trực diện với kẻ thù.
@@ -511,23 +506,23 @@ d) Ngày 30/4/1975 là ngày giải phóng hoàn toàn miền Nam, thống nhấ
     `,
     tf_ans: "71-ĐĐSS 72-ĐSSS 73-SĐSS 74-ĐĐĐS 75-SĐSĐ 76-ĐSĐS 77-ĐĐSS 78-SSSĐ",
 
-    // TRẢ LỜI NGẮN: Nhập đáp án kiểu 60-1858
-    short_raw: `
+    short_raw: ``,
+    short_ans: ""};
 
-    `,
-    short_ans: ""
-};
-
-// --- HỆ THỐNG XỬ LÝ ---
 let parsed = { choice: [], tf: [], short: [] };
 let activeMode = '';
 let currentQ = [];
 let studentAns = {};
 
+// Hàm xáo trộn mảng
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
 function parseAll() {
     document.getElementById('display-title').innerText = `[${RawData.title}]`;
     
-    // 1. Parse Trắc nghiệm
+    // Parse Trắc nghiệm
     const cRegex = /(?:Câu\s*(\d+)[\.:]|(\b\d+)[\.:])([\s\S]*?)A\.\s*([\s\S]*?)B\.\s*([\s\S]*?)C\.\s*([\s\S]*?)D\.\s*([\s\S]*?)(?=(?:Câu\s*\d+[\.:]|\b\d+[\.:])|$)/gi;
     let m;
     const cAnsMap = {};
@@ -541,58 +536,48 @@ function parseAll() {
     while ((m = cRegex.exec(RawData.choice_raw)) !== null) {
         let qNum = m[1] || m[2];
         parsed.choice.push({
-            id: 'c' + qNum,
-            num: qNum,
-            q: m[3].trim(),
+            id: 'c' + qNum, num: qNum, q: m[3].trim(),
             options: [m[4].trim(), m[5].trim(), m[6].trim(), m[7].trim()],
             correct: cAnsMap[qNum]
         });
     }
 
-    // 2. Parse Đúng/Sai
-    const tfRegex = /(?:Câu\s*(\d+)[\.:]|(\b\d+)[\.:])([\s\S]*?)a\)\s*([\s\S]*?)b\)\s*([\s\S]*?)c\)\s*([\s\S]*?)d\)\s*([\s\S]*?)(?=(?:Câu\s*\d+[\.:]|\b\d+[\.:])|$)/gi;
+    // Parse Đúng/Sai & Ngắn (giữ nguyên logic cũ đã ổn định)
     const tfAnsMap = {};
     const tfMatches = RawData.tf_ans.match(/(\d+)-([ĐS]{4})/gi) || [];
-    tfMatches.forEach(item => {
-        let parts = item.split('-');
-        tfAnsMap[parts[0]] = parts[1].split('').map(c => c === 'Đ');
-    });
-
+    tfMatches.forEach(item => { let p = item.split('-'); tfAnsMap[p[0]] = p[1].split('').map(c => c === 'Đ'); });
+    const tfRegex = /(?:Câu\s*(\d+)[\.:]|(\b\d+)[\.:])([\s\S]*?)a\)\s*([\s\S]*?)b\)\s*([\s\S]*?)c\)\s*([\s\S]*?)d\)\s*([\s\S]*?)(?=(?:Câu\s*\d+[\.:]|\b\d+[\.:])|$)/gi;
     while ((m = tfRegex.exec(RawData.tf_raw)) !== null) {
         let qNum = m[1] || m[2];
-        parsed.tf.push({
-            id: 'tf' + qNum,
-            num: qNum,
-            q: m[3].trim(),
-            sub: [m[4].trim(), m[5].trim(), m[6].trim(), m[7].trim()],
-            correct: tfAnsMap[qNum]
-        });
+        parsed.tf.push({ id: 'tf'+qNum, num: qNum, q: m[3].trim(), sub: [m[4].trim(), m[5].trim(), m[6].trim(), m[7].trim()], correct: tfAnsMap[qNum] });
     }
 
-    // 3. Parse Trả lời ngắn
-    const sRegex = /(?:Câu\s*(\d+)[\.:]|(\b\d+)[\.:])([\s\S]*?)(?=(?:Câu\s*\d+[\.:]|\b\d+[\.:])|$)/gi;
     const sAnsMap = {};
     const sMatches = RawData.short_ans.match(/(\d+)-([^\s]+)/gi) || [];
-    sMatches.forEach(item => {
-        let parts = item.split('-');
-        sAnsMap[parts[0]] = parts[1];
-    });
-
+    sMatches.forEach(item => { let p = item.split('-'); sAnsMap[p[0]] = p[1]; });
+    const sRegex = /(?:Câu\s*(\d+)[\.:]|(\b\d+)[\.:])([\s\S]*?)(?=(?:Câu\s*\d+[\.:]|\b\d+[\.:])|$)/gi;
     while ((m = sRegex.exec(RawData.short_raw)) !== null) {
         let qNum = m[1] || m[2];
-        parsed.short.push({
-            id: 's' + qNum,
-            num: qNum,
-            q: m[3].trim(),
-            correct: sAnsMap[qNum]
-        });
+        parsed.short.push({ id: 's'+qNum, num: qNum, q: m[3].trim(), correct: sAnsMap[qNum] });
     }
 }
 
 function initSection(mode) {
-    if (parsed[mode].length === 0) return alert("Không có câu hỏi phần này!");
+    if (parsed[mode].length === 0) return alert("Không có câu hỏi!");
     activeMode = mode;
-    currentQ = [...parsed[mode]].sort(() => Math.random() - 0.5);
+    
+    // Tạo bản sao để xáo trộn câu hỏi và đáp án
+    currentQ = parsed[mode].map(q => {
+        let newQ = {...q};
+        if (mode === 'choice') {
+            // Tạo danh sách các lựa chọn kèm theo đánh dấu câu nào là đúng
+            let opts = q.options.map((text, index) => ({ text, isCorrect: index === q.correct }));
+            newQ.shuffledOptions = shuffle([...opts]);
+        }
+        return newQ;
+    });
+    currentQ = shuffle(currentQ);
+
     document.getElementById('main-menu').style.display = 'none';
     document.getElementById('quiz-area').style.display = 'block';
     renderQuiz();
@@ -602,16 +587,16 @@ function renderQuiz() {
     const container = document.getElementById('questions-container');
     container.innerHTML = '';
     currentQ.forEach((q, idx) => {
-        let html = `<div class="question-item"><p><b>Câu ${idx+1} (${q.num}):</b> ${q.q}</p>`;
+        let html = `<div class="question-item"><p><b>Câu ${idx+1}:</b> ${q.q}</p>`;
         if (activeMode === 'choice') {
-            q.options.forEach((opt, i) => {
-                html += `<label style="display:block;margin:5px 0;"><input type="radio" name="${q.id}" value="${i}"> ${String.fromCharCode(65+i)}. ${opt}</label>`;
+            q.shuffledOptions.forEach((opt, i) => {
+                html += `<label style="display:block;margin:5px 0;"><input type="radio" name="${q.id}" value="${opt.isCorrect}"> ${String.fromCharCode(65+i)}. ${opt.text}</label>`;
             });
         } else if (activeMode === 'tf') {
             q.sub.forEach((s, i) => {
-                html += `<div style="margin:10px 0 10px 20px;">• ${s} 
-                    <label><input type="radio" name="${q.id}_${i}" value="true"> Đ</label>
-                    <label style="margin-left:10px;"><input type="radio" name="${q.id}_${i}" value="false"> S</label></div>`;
+                html += `<div style="margin-left:20px;">• ${s} 
+                <label><input type="radio" name="${q.id}_${i}" value="true"> Đ</label>
+                <label style="margin-left:10px;"><input type="radio" name="${q.id}_${i}" value="false"> S</label></div>`;
             });
         } else if (activeMode === 'short') {
             html += `<input type="text" id="input_${q.id}" placeholder="Nhập câu trả lời...">`;
@@ -625,13 +610,16 @@ function grade() {
     const pPerQ = 10 / currentQ.length;
 
     currentQ.forEach(q => {
-        studentAns[q.id] = { points: 0, val: null, subs: [] };
+        studentAns[q.id] = { points: 0, userDisplay: '' };
         if (activeMode === 'choice') {
             let sel = document.querySelector(`input[name="${q.id}"]:checked`);
-            studentAns[q.id].val = sel ? parseInt(sel.value) : null;
-            if (studentAns[q.id].val === q.correct) { studentAns[q.id].points = pPerQ; rawScore += pPerQ; }
+            if (sel) {
+                studentAns[q.id].isCorrect = (sel.value === 'true');
+                studentAns[q.id].userDisplay = sel.parentElement.innerText.trim();
+                if (studentAns[q.id].isCorrect) { studentAns[q.id].points = pPerQ; rawScore += pPerQ; }
+            }
         } else if (activeMode === 'tf') {
-            let count = 0;
+            let count = 0; studentAns[q.id].subs = [];
             q.sub.forEach((_, i) => {
                 let sel = document.querySelector(`input[name="${q.id}_${i}"]:checked`);
                 let v = sel ? (sel.value === 'true') : null;
@@ -653,8 +641,7 @@ function grade() {
 }
 
 function renderReview(mode) {
-    const div = document.getElementById('review-list');
-    div.innerHTML = '';
+    const div = document.getElementById('review-list'); div.innerHTML = '';
     const list = (mode === 'all') ? parsed[activeMode] : currentQ;
     const maxP = 10 / list.length;
 
@@ -664,26 +651,26 @@ function renderReview(mode) {
         if (mode === 'wrong' && ans.points >= maxP * 0.9) return;
 
         let html = `<div class="question-item"><p><b>Câu ${q.num}:</b> ${q.q}</p>`;
-        
         if (activeMode === 'choice') {
+            // Khi xem lại, ta dựa trên dữ liệu gốc để hiển thị A, B, C, D chuẩn
             q.options.forEach((opt, i) => {
-                let cls = (i === q.correct) ? 'correct-ans' : (i === ans.val ? 'wrong-ans' : '');
-                html += `<div class="${cls}">${String.fromCharCode(65+i)}. ${opt} ${i === q.correct ? '✓' : ''}</div>`;
+                let isCorrect = (i === q.correct);
+                let cls = isCorrect ? 'correct-ans' : '';
+                html += `<div class="${cls}">${String.fromCharCode(65+i)}. ${opt} ${isCorrect ? '✓' : ''}</div>`;
             });
+            html += `<p style="margin-top:10px;">Bạn chọn: <span class="${ans.points > 0 ? 'correct-ans' : 'wrong-ans'}">${ans.userDisplay || '(Trống)'}</span></p>`;
         } else if (activeMode === 'tf') {
             q.sub.forEach((s, i) => {
-                let userS = ans.subs[i] === null ? '_' : (ans.subs[i] ? 'Đ' : 'S');
-                let isRight = ans.subs[i] === q.correct[i];
-                html += `<div>• ${s} -> <b class="correct-ans">${q.correct[i]?'Đ':'S'}</b> (Bạn chọn: <span class="${isRight?'':'wrong-ans'}">${userS}</span>)</div>`;
+                let u = ans.subs[i] === null ? '_' : (ans.subs[i] ? 'Đ' : 'S');
+                html += `<div>• ${s} -> <b class="correct-ans">${q.correct[i]?'Đ':'S'}</b> (Bạn: <span class="${ans.subs[i]===q.correct[i]?'':'wrong-ans'}">${u}</span>)</div>`;
             });
         } else if (activeMode === 'short') {
-            html += `<p>Câu trả lời của bạn: <span class="${ans.points > 0 ? 'correct-ans' : 'wrong-ans'}">${ans.val || '(Trống)'}</span></p>`;
+            html += `<p>Bạn điền: <span class="${ans.points > 0 ? 'correct-ans' : 'wrong-ans'}">${ans.val || '(Trống)'}</span></p>`;
             html += `<p class="correct-ans">Đáp án đúng: ${q.correct}</p>`;
         }
         div.innerHTML += html + `</div>`;
     });
 }
-
 parseAll();
 </script>
 </body>
