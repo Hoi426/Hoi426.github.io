@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ thống Thi Online - Cập nhật Parser & Fix Bug</title>
+    <style>
+        :root { --p: #2c3e50; --s: #27ae60; --d: #e74c3c; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .exam-title { text-align: center; color: var(--p); font-size: 24px; font-weight: bold; margin-bottom: 30px; border-bottom: 3px solid var(--p); padding-bottom: 10px; }
+        
+        .box { background: #fff; border: 2px solid var(--p); border-radius: 10px; padding: 30px; margin-bottom: 15px; text-align: center; cursor: pointer; transition: 0.3s; font-size: 18px; font-weight: bold; }
+        .box:hover { background: var(--p); color: white; }
+
+        .question-item { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 8px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
+        .btn-submit { background: var(--s); color: white; width: 100%; font-size: 18px; }
+        .btn-view { background: #3498db; color: white; }
+        
+        #result-screen { display: none; text-align: center; }
+        .score-big { font-size: 50px; color: #e67e22; margin: 10px 0; }
+        .correct-ans { color: var(--s); font-weight: bold; }
+        .wrong-ans { color: var(--d); font-weight: bold; }
+        input[type="text"] { padding: 10px; width: 80%; border: 1px solid #ccc; border-radius: 4px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="exam-title" id="display-title">[Tên đề thi]</div>
+
+    <div id="main-menu">
+        <div class="box" onclick="initSection('choice')">Trắc nghiệm 4 lựa chọn</div>
+        <div class="box" onclick="initSection('tf')">Đúng/Sai</div>
+        <div class="box" onclick="initSection('short')">Trả lời ngắn</div>
+    </div>
+
+    <div id="quiz-area" style="display:none;">
+        <div id="questions-container"></div>
+        <button class="btn btn-submit" onclick="grade()">Nộp bài</button>
+    </div>
+
+    <div id="result-screen">
+        <h2>KẾT QUẢ</h2>
+        <div class="score-big" id="score-text">0/10</div>
+        <div class="btn-group">
+            <button class="btn btn-view" onclick="renderReview('correct')">Coi đáp án đúng</button>
+            <button class="btn btn-view" onclick="renderReview('wrong')">Coi đáp án sai</button>
+            <button class="btn btn-view" onclick="renderReview('all')">Coi toàn bộ theo đề gốc</button>
+        </div>
+        <div id="review-list" style="text-align: left; margin-top: 25px;"></div>
+        <button class="btn" style="background:#7f8c8d; color:white;" onclick="location.reload()">Quay lại</button>
+    </div>
+</div>
+
+<script>
+// --- DỮ LIỆU GIÁO VIÊN ---
+const RawData = {
+    title: "KIỂM TRA LỊCH SỬ & ĐỊNH DẠNG ORBITAL",
+    
+    // TRẮC NGHIỆM: Dán đề và nhập đáp án kiểu 69C 70B
+    choice_raw: `
+Câu 1. Trong năm đầu sau Cách mạng tháng Tám năm 1945, nước Việt Nam Dân chủ Cộng hòa đứng trước khó khăn nào? 
+A. Quân Pháp trở lại Đông Dương theo quy định của Hội nghị Pốtxđam. 
+B. Các đảng phái trong nước đều câu kết với quân Trung Hoa Dân quốc. 
+C. Nạn đói, nạn dốt, khó khăn về tài chính, giặc ngoại xâm và nội phản. 
+D. Khối đoàn kết dân tộc bị chia rẽ sâu sắc, lực lượng chính trị suy yếu
+Câu 2. Một trong những thuận lợi của nước Việt Nam Dân chủ Cộng hòa khi mới thành lập là
+A. được Trung Quốc và Liên Xô giúp đỡ.
+B. được các nước xã hội chủ nghĩa công nhận.
+C. nhân dân đã giành được quyền làm chủ đất nước.
+D. Phát xít Nhật đã được giải giáp khỏi nước ta.
+Câu 3. Quân đội các nước với danh nghĩa Đồng minh vào nước ta sau năm 1945 là
+A. quân Anh, quân Trung Hoa Dân quốc.	
+B. quân Pháp, quân Anh.
+C. quân Pháp, quân Trung Hoa Dân quốc.	
+D. quân Anh, quân Mĩ.
+Câu 4. Sự kiện đánh dấu việc thực dân Pháp chính thức mở đầu cuộc chiến tranh xâm lược Việt Nam lần thứ hai là
+A. Pháp gây hấn ở Sài Gòn – Chợ Lớn khi nhân dân mít tinh.
+B. quân Pháo chiếm đóng những nơi quan trọng ở Sài Gòn.
+C. quân Pháp đánh úp trụ sở Ủy ban  Nhân dân Nam Bộ.
+D. Pháp gửi tối hậu thư đòi quyền giữ gìn trật tự ở Hà Nội.
+ Câu 5. Nhiệm vụ cấp bách của Cách mạng Việt Nam sau cách mạng tháng Tám năm 1945 là
+A. củng cố chính quyền, chống Pháp và nội phản.
+B. chống quân Đồng minh đang có âm mưu xâm lược trở lại.
+C. chống bọn phản động ta sai của quân Đồng minh.
+D.  xây dựng đất nước đi lên Chủ nghĩa xã hội.
+Câu 6. Khi Pháp xâm lược Nam Bộ (9/1945), Đảng và Chính phủ Việt Nam đã có hành động nào để bảo vệ nền độc lập đất nước?
+A. Đã tiến hành đàm phán khẩn cấp với Pháp.
+B. Tố cáo hành vi của Pháp đến Liên hợp quốc.
+C. Đưa toàn bộ quân đội vào Nam chiến đấu.
+D. Huy động cả nước để chi viện cho Nam Bộ.
+Câu 7. Quân Trung Hoa Dân quốc vào nước ta sau Cách mạng tháng Tám năm 1945 thực chất nhằm mục đích
+A. lật đổ chính quyền cách mạng, tiêu diệt đảng cộng sản.
+B. câu kết với bọn phản động để dựng lên chính phủ tay sai.
+C. làm hậu thuẫn cho quân Mĩ chiếm Đông Dương.
+D. giúp đỡ thực dân Pháp trở lại xâm lược Việt Nam.
+Câu 8. Âm mưu chủ yếu của các thế lực phản động trong và ngoài nước đối với Việt Nam sau cách mạng tháng Tám năm 1945 là
+A. bảo vệ chính quyền Trần Trọng Kim.              
+B. đưa thực dân Pháp quay trở lại xâm lược.
+C. mở đường cho đế quốc Mĩ xâm lược VN.         
+D. chống phá chính quyền cách mạng VN.
+Câu 9. Cuộc chiến đấu của nhân dân Nam bộ trong những ngày đầu thực dân Pháp quay lại xâm lược Việt Nam đã
+A. ngăn chặn hoàn toàn cuộc chiến  với thực dân Pháp.          
+B. khắc phục được nhiều  khó khăn do chế độ cũ để lại .
+C. bảo vệ vững chắc nền độc lập non trẻ của Việt Nam.        
+D. tạo tiền đề cho cuộc trường kì kháng chiến của dân tộc.
+ Câu 10. Cuộc chiến đấu của nhân dân Nam bộ trong những ngày đầu thực dân Pháp quay lại xâm lược Việt Nam đã chứng minh
+A. sự đúng đắn của đường lối kháng chiến chống Pháp của Đảng. 
+B. sự chuẩn bị đầy đủ về lực lượng của ta trước âm mưu mới của kẻ thù .       
+C. quyết tâm của ta trong việc bảo vệ thành quả  của cách mạng.    
+D. thực dân Pháp đã thất bại hoàn toàn trong âm mưu mới.
+Câu 11. Cuộc kháng chiến chống thực dân Pháp của nhân dân Việt Nam bùng nổ (1945) trong bối cảnh quốc tế nào sau đây?
+A. Nhân dân Việt Nam đã trở thành người làm chủ đất nước
+B. Lực lượng vũ trang ba thứ quân có sự phát triển vượt bậc
+C. Phong trào giải phóng dân tộc ở các nước thuộc địa phát triển.
+D. Chế độ xã hội mới, tiến bộ ở Việt Nam đang được củng cố.
+Câu 12.  Cuộc kháng chiến chống Pháp của nhân dân Việt Nam (1945- 1954) diễn ra trong điều kiện
+A. quan hệ quốc tế bị chi phối bởi trật tự hai cực I-an-ta.
+B. nguy cơ chiến tranh thế giới hai đe dọa toàn nhân loại.
+C. chế độ xã hội chủ nghĩa ở Liên Xô khủng hoảng sâu sắc.
+D. trât tự thế giới đa cực đang trong giai đoạn hình thành.
+Câu 13.  Sau cách mạng tháng Tám năm 1945, thực dân đế quốc nào sau đây đã quay trở lại xâm lược Việt Nam?
+A. Anh.
+B. Pháp          
+C. Mỹ             
+D. Nhật
+Câu 14. Sự kiện nào trực tiếp dẫn đến cuộc kháng chiến toàn quốc chống thực dân Pháp của nhân dân Việt Nam bùng nổ vào ngày 19 – 12 – 1946?
+A. Quân Pháp đánh úp trụ sở Uy ban nhân dân Nam Bộ.
+B. Pháp gửi tối hậu thư cho Chính phủ Việt Nam Dân chủ Cộng hòa.
+C. Chủ tịch Hồ Chí Minh ra “Lời kêu gọi Toàn quốc kháng chiến”. 
+D. Quân Pháp mở chiến dịch tấn công quy mô lớn lên Việt Bắc
+Câu 15. Đảng, Chính phủ và Chủ tịch Hồ Chí Minh quyết định phát động cuộc kháng chiến toàn quốc chống thực dân Pháp xâm lược (19/12/1946) là do
+A. Việt Nam đã tranh thủ được sự ủng hộ của Liên Xô và một số nước khác.
+B. quá trình chuẩn bị lực lượng của Việt Nam cho cuộc kháng chiến đã hoàn tất.
+C. Pháp ráo riết chuẩn bị lực lượng quân sự để tiến hành xâm lược Việt Nam.
+D. Việt Nam không thể tiếp tục sử dụng biện pháp hòa bình với Pháp được nữa.
+Câu 16. Cuộc chiến đấu chống thực dân Pháp ở các đô thị phía Bắc vĩ tuyến 16 (cuối 1946 – đầu 1947) đã
+A. tiêu diệt hoàn toàn lực lượng chủ lực của địch tại các đô thị.
+B. làm phá sản kế hoạch đánh nhanh thắng nhanh của Pháp.
+C. mở ra bước phát triển mới của cuộc kháng chiến toàn quốc.
+D. củng cố niềm tin của quân dân ta vào thắng lợi kháng chiến.
+Câu 17. Cuộc chiến đấu của quân dân Việt Nam tại các đô thị phía Bắc vĩ tuyến 16 từ cuối năm 1946 đến đầu năm 1947 có nhiệm vụ trọng tâm là 
+ A. giữ thế chủ động trên chiến trường chính Bắc Bộ.         
+B. đưa cả nước bước vào kháng chiến lâu dài. 
+C. phá hủy toàn bộ phương tiện vật chất của Pháp.             
+D. tiêu diệt toàn bộ binh lực Pháp. 
+Câu 18. Âm mư¬u “đánh nhanh, thắng nhanh” của Pháp bị thất bại hoàn toàn bởi chiến thắng nào của ta? 
+A. Chiến dịch Việt Bắc thu  -đông 1947. 
+B. Chiến dịch biên giới thu - đông 1950 
+C. Cuộc Tiến công chiến lược đông – xuân 1953-1954 	        
+D. Chiến dịch Điện Biên Phủ 1954 
+Câu 19. Tháng 2-1951, tại Vinh Quang (Chiêm Hóa-Tuyên Quang) đã diễn ra sự kiện nào dưới đây?
+A. Đại hội Chiến sĩ thi đua và cán bộ gương mẫu toàn quốc lần I.
+B. Đại hội thống nhất Mặt trận Việt Minh và Hội Liên Việt.
+C. Hội nghị đại biểu thành lập Liên minh nhân Việt-Minh-Lào.
+D. Đại hội đại biểu toàn quốc lần thứ II của Đảng Cộng sản Đông Dương.
+Câu 20. Đại hội đại biểu toàn quốc lần thứ 2 của Đảng (2/1951) quyết định đưa Đảng ra hoạt động công khai với tên gọi mới là	
+A. Đảng Cộng Sản Đông Dư¬ơng.		
+B. Đảng Lao động Việt Nam.
+C. Đảng Cộng Sản Việt Nam. 		
+D. Đảng Lao động Đông D¬ương. 
+Câu 21. Để làm phá sản kế hoạch Rơve của Pháp, tháng 6-1950 Đảng Cộng sản Đông Dương quyết định mở chiến dịch nào sau đây?
+A. Hồ Chí Minh. 		
+B. Việt Bắc thu - đông.
+C. Biên giới thu - đông. 		
+D. Điện Biên Phủ.
+Câu 22. Chiến dịch Biên giới thu - đông năm 1950 ở Việt Nam được tiến hành trong bối cảnh lịch sử nào sau đây?
+A. Thực dân Pháp mở cuộc tấn công quy mô lớn lên Việt Bắc.
+B. Thực dân Pháp lâm vào thế bị động trên chiến trường chính
+C. Thực dân Pháp buộc phải chuyển sang đánh lâu dài với ta.
+D. Mĩ đang hỗ trợ thực dân Pháp triển khai kế hoạch Nava.
+Câu 25. Nội dung nào sau đây là ý nghĩa của chiến dịch Việt Bắc thu – đông năm 1947?
+A. Phá vỡ thế bị bao vây cô lập của cách mạng Việt Nam. 
+B. Làm thay đổi tương quan lực lượng có lợi cho cách mạng. 
+C. Pháp buộc phải chuyển từ “đánh nhanh thắng nhanh” sang “đánh lâu dài” với ta. 
+D. Làm cho quân Pháp phải lệ thuộc hoàn toàn vào Mĩ. 
+Câu 26. Nội dung nào dưới đây phản ánh không đúng về cuộc chiến đấu trong các đô thị phía Bắc vĩ tuyến 16 ở Việt Nam (1946 - 1947)?
+A. Tạo điều kiện cho cả nước bước vào kháng chiến lâu dài.
+B. Làm phá sản hoàn toàn kế hoạch quân sự Nava của Pháp.
+C. Thể hiện tinh thần chiến đấu dũng cảm của quân dân ta.
+D. Là một thắng lợi quân sự tiêu biểu của nhân dân ta.
+Câu 27. Nhiệm vụ chủ yếu của quân dân Việt Nam trong cuộc chiến đấu chống thực dân Pháp ở các đô thị phía Bắc vĩ tuyến 16 (từ tháng 12/1946 đến tháng 2/1947) là
+A. bảo vệ Hà Nội và các đô thị.          
+B. củng cố hậu phương kháng chiến.
+C. tiêu diệt toàn bộ sinh lực địch.         
+D. giam chân quân Pháp tại các đô thị.
+Câu 28. Chiến dịch Việt Bắc thu- đông (1947) và Biên giới thu- đông (1950) của quân dân Việt Nam đều
+A. chủ động tiến công Pháp.                
+B. thực hiện chiến tranh nhân dân.      
+C. mở ra bước phát triển mới của cuộc kháng chiến.
+D. làm phá sản kế hoạch đánh nhanh thắng nhanh của Pháp.
+Câu 29. Một trong những điểm khác nhau cơ bản giữa chiến dịch Biên giới thu – đông năm 1950 với chiến dịch Việt Bắc thu – đông năm 1947 của quân dân Việt Nam là
+A. tinh thần quyết tâm của dân tộc.            
+B. lực lượng tham gia chiến dịch.
+C. bối cảnh quốc tế mở chiến dịch.             
+D. lực lượng chỉ đạo chiến dịch.
+Câu 30. Điểm khác nhau của chiến dịch Việt Bắc thu - đông năm 1947 so với chiến dịch biên giới thu - đông năm 1950 của quân dân Việt Nam là về 
+A. đối tượng tác chiến.                                                 
+B. địa hình tác chiến. 
+C. loại hình chiến dịch.                                                 
+D. lực lượng chủ yếu
+Câu 31. Thắng lợi quân sự của quân dân ta trong thu đông năm 1947 đã buộc thực dân Pháp rút đại bộ phận quân khỏi
+A. Tây Nguyên.	
+B. Việt Bắc.	
+C. Bắc Bộ.	
+D. Tây Bắc.
+Câu 32. Đại hội đại biểu nào của Đảng được coi là “Đại hội Kháng chiến thắng lợi”?
+A. Đại hội đại biểu lần thứ I (1935).          
+B. Đại hội đại biểu lần thứ II (1951).
+C. Đại hội đại biểu lần thứ III (1960).       
+D. Đại hội đại biểu lần thứ IV (1976). 
+Câu 33.  Năm 1953, thực dân Pháp đề ra kế hoạch Nava nhằm mục đích
+A. khóa chặt biên giới Việt - Trung.	
+B. cô lập căn cứ địa Việt Bắc.
+C. kết thúc chiến tranh trong danh dự.	
+D. quốc tế hóa chiến tranh Đông Dương.
+Câu 34.  Trong những năm 1953 - 1954, để can thiệp sâu vào chiến tranh Đông Dương, Mỹ đã
+A. ký với Pháp Hiệp định phòng thủ chung Đông Dương. 
+B. ồ ạt đưa quân Mỹ và quân Đồng minh vào miền Nam.
+C. dựng chính quyền tay sai Ngô Đình Diệm ở miền Nam.
+D. tăng cường viện trợ cho Pháp thực hiện kế hoạch Nava. 
+Câu 35. “Chủ động mở những cuộc tiến công tại những địa bàn trọng yếu buộc địch phải phân tán lực lượng” là
+A. nhiệm vụ chính của quân ta trong chiến dịch Biên giới thu đông 1950
+B. phương hướng chiến lược của quân ta trong đông xuân 1953 – 1954.
+C. phương châm tác chiến của quân ta trong chiến dịch Điện Biên Phủ.
+D. lối đánh xuyên suốt của quân ta trong các chiến dịch kháng chiến chống Pháp.	
+Câu 36. Trong giai đoạn từ 1954 đến 1958, mục tiêu đấu tranh chủ yếu của nhân dân miền Nam Việt Nam là
+ 
+A. đòi Mỹ - Diệm thi hành Hiệp định Giơ-ne-vơ.
+B. xây dựng và phát triển các lực lượng vũ trang.
+C. chuẩn bị tổ chức các cuộc phản công quân sự.
+D. xây dựng các căn cứ địa ở nông thôn, rừng núi.
+
+
+
+
+ 
+Câu 37. Nghị quyết 15 của Ban Chấp hành Trung ương Đảng Lao động Việt Nam (1959) đã quyết định
+A. tiến hành chiến tranh du kích, xây dựng các căn cứ địa.
+B. phát lệnh tổng khởi nghĩa giành chính quyền trên toàn miền Nam. 
+C. để nhân dân nhân miền Nam sử dụng bạo lực cách mạng. 
+D. phái lực lượng ra miền Bắc chở vũ khí vào Nam đánh Mỹ.
+Câu 38. Nội dung nào sau đây không phải là ý nghĩa của phong trào “Đồng khởi" (1959 - 1960) ở miền Nam Việt Nam?
+ 
+A. Lung lay tận gốc chính quyền Ngô Đình Diệm.
+B. Đánh bại "Chiến tranh cục bộ" của đế quốc Mỹ.
+C. Bước phát triển mới của cách mạng miền Nam.
+D. Cách mạng miền Nam chuyển sang thế tiến công.
+
+
+
+
+ 
+Câu 39. Hai cuộc kháng chiến của nhân dân Việt Nam chống thực dân Pháp và đế quốc Mỹ xâm lược (1945 - 1975) đều được phát động trong điều kiện quốc tế nào sau đây?
+A. Có sự ủng hộ của phe xã hội chủ nghĩa.
+B. Chiến tranh thế giới thứ hai đang đến hồi kết.
+C. Quan hệ quốc tế đang có diễn biến phức tạp.
+D. Xu thế toàn cầu hóa đã xuất hiện ở châu Âu.
+Câu 40. Trong những năm 1954 - 1960, miền Bắc Việt Nam đã thực hiện nhiều nhiệm vụ khác nhau, nhưng không có nhiệm vụ nào sau đây?
+A. Xây dựng kinh tế thị trường theo định hướng xã hội chủ nghĩa.
+B. Cải tạo quan hệ sản xuất, bước đầu phát triển kinh tế - xã hội.
+C. Thực hiện khôi phục kinh tế, hàn gắn vết thương chiến tranh.
+D. Hoàn thành việc cải cách ruộng đất để "người cày có ruộng".
+Câu 41. Nội dung nào sau đây là hình thức đấu tranh chủ yếu chống chế độ Mỹ - Diệm của nhân dân miền Nam Việt Nam trong thời gian đầu sau Hiệp định Giơ-ne-vơ (1954)? 
+A. Tổng tiến công và nổi dậy.		
+B. Đấu tranh chính trị hòa bình.
+C. Dùng bạo lực cách mạng.		
+D. Đấu tranh cải lương
+Câu 42. Sự kiện nào sau đây trong giai đoạn 1954 - 1960 đánh dấu bước phát triển nhảy vọt của cách mạng miền Nam Việt Nam?
+A. Phong trào Đồng khởi.			
+B. Phong trào chống phá bình định.
+C. Phong trào phá ấp chiến lược.	
+D. Phong trào "Ba sẵn sàng".
+Câu 43. Từ trong phong trào Đồng khởi ở miền Nam Việt Nam, tổ chức đoàn thể chính trị nào sau đây đã ra đời?
+ 
+A. Liên minh Nhân dân Việt - Miên - Lào.
+B. Việt Nam Độc lập Đồng minh (Việt Minh).
+C. Mặt trận Thống nhất dân tộc phản đế Đông Dương.
+D. Mặt trận Dân tộc giải phóng miền Nam Việt Nam. 
+Câu 44. Đặc điểm nổi bật nhất của Việt Nam sau khi Hiệp định Giơnevơ năm 1954 về Đông Dương được kí kết là
+A. Pháp rút khỏi miền Bắc, miền Bắc nước ta hoàn toàn giải phóng.	
+B. đất nước tạm thời bị chia cắt làm 2 miền với 2 chế độ chính trị khác nhau.
+C. Pháp chấm dứt chiến tranh xâm lược Đông Dương, rút hết quân về nước.
+D. Ngô Đình Diệm lên nắm quyền, Mĩ âm mưu chia cắt lâu dài Việt Nam.
+Câu 45. Hội nghị lần thứ 15 Ban Chấp hành Trung ương Đảng Lao động Việt Nam (tháng 1/1959) quyết định để nhân dân miền Nam sử dụng bạo lực cách mạng vì
+A. thời cơ để nhân dân miền Nam khởi nghĩa giành chính quyền đã chín muồi.
+B. Mĩ – Diệm sử dụng bạo lực phản cách mạng để đàn áp nhân dân miền Nam.
+C. chính quyền tay sai Ngô Đình Diệm rơi vào tinh trạng khủng hoảng.	
+D. Mĩ đã đưa quân vào miền Nam trực tiếp tham chiến.
+Câu 46. Đặc điểm lớn nhất của cách mạng Việt Nam thời kỳ 1954 – 1975 là một Đảng lãnh đạo 
+A. cả nước thực hiện cuộc cách mạng tư sản dân quyền.	
+B. cả nước thực hiện cuộc cách mạng xã hội chủ nghĩa.
+C. đồng thời hai nhiệm vụ chiến lược cách mạng ở hai miền đất nước.	
+D. cả nước khôi phục kinh tế, hàn gắn vết thương chiến tranh.
+Câu 47. Phong trào “Đồng khởi” (1959 – 1960) ở miền Nam Việt Nam có ý nghĩa nào sau đây?
+A. Giáng một đòn nặng nề vào chính sách thực dân mới của Mỹ ở miền Nam.
+B. Tiếp tục giữ vững và phát huy thế chủ động tiến công của cách mạng miền Nam.
+C. Bắt đầu chuyển cuộc kháng chiến chống Mỹ sang giai đoạn “vừa đánh vừa đàm”.
+D. Buộc Mĩ phải tuyên bố “Mĩ hóa” trở lại chiến tranh xâm lược Việt Nam.
+Câu 48. Với chiến thắng của phong trào “Đồng khởi”, quân và dân miền Nam đã làm phá sản chiến lược chiến tranh nào của Mỹ?
+A.“Chiến tranh đặc biệt”.  		
+B. “Việt Nam hoá chiến tranh”.
+C.“Chiến tranh cục bộ”.			
+D. “Chiến tranh đơn phương”.
+Câu 49. Từ năm 1954 – 1960, nhiệm vụ chủ yếu của nhân dân miền Bắc Việt Nam là
+A. chống đế quốc Mĩ và tay sai, khôi phục kinh tế, cải tạo quan hệ sản xuất.	
+B. xây dựng cơ sở vật chất cho chủ nghĩa xã hội, cải tạo quan hệ sản xuất.	
+C. khôi phục kinh tế, xây dựng cơ sở vật chất cho chủ nghĩa xã hội.	
+D. hoàn thành cải cách ruộng đất, khôi phục kinh tế, cải tạo quan hệ sản xuất.
+Câu 50. Đường lối thể hiện sự lãnh đạo sáng suốt, độc đáo của Đảng Lao động Việt Nam ngay sau khi hiệp định Giơ-ne-vơ năm 1954 về Đông Dương được kí kết là
+A. Tiến hành cách mạng dân tộc dân chủ nhân dân ở miền Nam 
+B. Hoàn thành cuộc cách mạng dân tộc dân chủ nhân dân trong cả nước.
+C. Tiến hành đồng thời hai nhiệm vụ cách mạng chiến lược ở hai miền đất nước.
+D. Tiến hành duy nhất một cuộc cách mạng xã hội chủ nghĩa ở miền Bắc 
+ 
+Câu 51. Chiến lược “Chiến tranh đặc biệt” của Mỹ tiến hành ở miền Nam Việt Nam trong những năm 1961-1965 có âm mưu cơ bản là
+ 
+A. dùng người Việt đánh người Việt.
+B. đưa quân chư hầu vào miền Nam.
+C. mở rộng phá hoại miền Bắc.	
+D. dùng người Đông Dương đánh người Đông Dương.
+Câu 52. Lực lượng đóng vai trò nòng cốt trong chiến lược “Chiến tranh đặc biệt” của Mỹ ở miền Nam Việt Nam (1961-1965) là
+A. quân đội Sài Gòn. 					
+B. quân viễn chinh Mỹ.
+C. quân đồng minh Mỹ. 				
+D. quân đội Anh.
+Câu 53. “Ấp chiến lược” được coi là “xương sống”, “quốc sách” của chiến lược chiến tranh nào Mỹ thực hiện ở miền Nam Viêt Nam từ 1961-1965?
+ 
+A. Chiến tranh đặc biệt.	
+B. Chiến tranh Cục bộ.
+C. Việt Nam hóa chiến tranh.
+D. Đông Dương hóa chiến tranh.
+
+
+
+ 
+Câu 54. Trên mặt trận quân sự, chiến thắng nào của quân dân ta đã mở ra khả năng đánh bại "Chiến tranh đặc biệt" (1961 – 1965) của Mỹ?
+A. Bình Giã (Bà Rịa).				
+B. Ba Gia (Quảng Ngãi).
+C. Đồng Xoài (Biên Hoà).			
+D. Ấp Bắc (Mĩ Tho).
+Câu 55. Chiến thắng nào đã bước đầu đánh bại chiến thuật quân sự “trực thăng vận”, “ thiết xa vận” của Mỹ trong chiến lược “Chiến tranh đặc biệt” (1961 – 1965)?
+A. Chiến thắng Bình Giã.			
+B. Chiến thắng Đồng Khởi.
+C. Chiến Thắng Vạn Tường.			
+D. Chiến thắng Ấp Bắc.
+Câu 56. Một trong những thắng lợi của quân dân miền Nam Việt Nam góp phần làm phá sản chiến lược Chiến tranh đặc biệt (1961 - 1965) của Mỹ là
+A. Đoan Hùng.		
+B. Đông Khê.		
+C. Thất Khê.		
+D. Ba Gia.
+Câu 57. Thắng lợi nào của quân dân miền Nam Việt Nam trong những năm 1961-1965 đã làm phá sản về cơ bản chiến lược “Chiến tranh đặc biệt” của Mỹ?
+A. Ấp Bắc - Mĩ Tho.				
+B. Bình Giã - Bà Rịa
+C. An Lão - Bình Định.			
+D. Đồng Xoài- Bình Phước.
+Câu 58. Những chiến thắng nào làm phá sản hoàn toàn chiến lược “Chiến tranh đặc biệt” (1961 – 1965) của Mỹ ở miền Nam Việt Nam?
+A. An Lão, Ba Gia, Đồng Xoài.		
+B. Núi Thành, Ba Gia, Đồng Xoài.
+C. Ba Gia, Đồng Xoài, Vạn Tường.		
+D. An Lão, Ba Gia, Phước Long.
+Câu 59. Để tạo cớ gây ra cuộc chiến tranh phá hoại miền Bắc Việt Nam lần thứ nhất năm 1965, Mỹ đã sử dụng thủ đoạn nào?
+ 
+A. Dựng lên “Sự kiện Vịnh Bắc Bộ”.	
+B. Hoạt động khiêu kích ở đảo Cồn Cỏ.
+C. Buộc tội miền Bắc chi viện cho miền Nam.
+D. Tố cáo miền Bắc xâm lược miền Nam.
+
+
+
+
+
+.
+ 
+Câu 60. Trong những năm 1965 – 1968, đế quốc Mỹ thực hiện chiến lược chiến tranh nào ở miền Nam Việt Nam?
+A. Chiến tranh đặc biệt.			
+B. Chiến tranh cục bộ.	
+C. Việt Nam hóa chiến tranh.			
+D. Đông Dương hóa chiến tranh.
+Câu 61. So sánh lực lượng ở miền Nam thay đổi lớn theo hướng có lợi cho cách mạng Việt Nam từ sau sự kiện nào sau đây?
+ 
+A. Chiến dịch Đường 9 - Khe Sanh (1969).
+B. Chiến dịch Phước Bình - Bù Đốp (1969).
+C. Đàm phán bốn bên tại Hội nghị Pa-ri (1969).
+D. Hiệp định Pa-ri được kí kết (1973).
+
+
+
+
+ 
+Câu 62. Trong cuộc chiến tranh xâm lược miền Nam Việt Nam (1954 – 1975), chiến lược “Chiến tranh cục bộ” của Mỹ có điểm gì khác biệt với chiến lược “Chiến tranh đặc biệt”?
+A. Âm mưu lâu dài.				
+B. Lực lượng thực hiện chủ yếu.
+C. Loại hình chiến tranh.			
+D. Bối cảnh Chiến tranh lạnh.
+Câu 63. Điểm giống nhau cơ bản trong các chiến lược “Chiến tranh đặc biệt”, “Chiến tranh cục bộ” và “Việt nam hóa chiến tranh” của Mỹ thực hiện ở Việt Nam trong những năm 1954-1975) là gì?
+ 
+A. loại hình chiến tranh xâm lược thực dân mới.
+B. loại hình chiến tranh xâm lược thực dân kiểu cũ.
+C. loại hình chiến tranh tổng lực.	
+D. loại hình chiến tranh toàn diện.
+
+
+
+
+ 
+Câu 64. Thắng lợi nào của quân dân miền Nam Việt Nam đã mở ra khả năng đánh thắng Mỹ trong chiến lược “Chiến tranh cục bộ” (1965-1968)?
+A. Vạn Tường.		
+B. Ấp Bắc.		
+C. Núi Thành.		
+D. Bình Giã.
+Câu 65. Chiến thắng nào được coi là "Ấp Bắc" đối với quân Mỹ, mở đầu cao trào "Tìm Mĩ mà đánh, lùng ngụy mà diệt" trên khắp miền Nam Việt Nam?
+A. Bình Giã.		
+B. Đồng Khởi.		
+C. Vạn Tường.		
+D. Ấp Bắc.
+Câu 66. Thắng lợi nào sau đây đánh dấu sự phá sản hoàn toàn của chiến lược “Chiến tranh cục bộ” (1965-1968) của Mỹ ở Việt Nam?
+A. Phong trào Đồng khởi.					
+B. Chiến dịch Tây Nguyên.
+C. Chiến thắng Mậu Thân 1968.				
+D. Chiến dịch Hồ Chí Minh. 
+Câu 67. Cuộc Tổng tiến công và nổi dậy Xuân Mậu Thân (1968) của quân dân miền Nam Việt Nam đã buộc Mỹ
+A. tuyên bố "Mỹ hóa" chiến tranh xâm lược miền Nam Việt Nam.
+B. kí Hiệp định Pari về chấm dứt chiến tranh ở Việt Nam.
+C. chấm dứt không điều kiện chiến tranh phá hoại miền Bắc.
+D. rút toàn bộ quân đội ra khỏi miền Nam Việt Nam.
+Câu 68. Một trong những ý nghĩa của cuộc Tổng tiến công và nổi dậy xuân Mậu Thân 1968 ở miền Nam Việt Nam là  
+A. buộc Pháp chấm dứt chiến tranh phá hoại miền Bắc. 
+B. buộc Mỹ chấp nhận bàn đàm phán với ta tại Pari. 
+C. buộc Pháp phải kí Hiệp định Giơ ne vơ.
+D. mở ra cơ hội cho Việt Nam gia nhập khối Asean. 
+Câu 69. Sau cuộc tổng tiến công và nổi dậy xuân Mậu Thân năm 1968 của quân dân Việt Nam, Mỹ tuyên bố “phi Mỹ hóa” chiến tranh tức thừa nhận sự thất bại của chiến lược
+A. Chiến tranh một phía. 			
+B. Chiến tranh đặc biệt.
+C. Chiến tranh cục bộ.				
+D. Việt Nam hóa chiến tranh.
+Câu 70. Phong trào đấu tranh chính trị của quân dân Việt Nam trong cuộc chiến đấu chống “Chiến tranh cục bộ” (1965-1968) của Mỹ đòi
+ 
+A. Mỹ thi hành Hiệp định Giơ-ne-vơ.
+B. quyền tự do dân chủ, cơm áo, hòa bình.
+C. Mỹ rút về nước và đòi tự do dân chủ.
+D. chống sự đàn áp của chính quyền Diệm.
+
+    `,
+    choice_ans: "1C 2C 3A 4C 5A 6D 7A 8D 9D 10C 11C 12A 13B 14B 15D 16D 17B 18A 19D 20B 21C 22C 25C 26B 27D 28B 29C 30C 31C 32B 33C 34D 35B 36A 37C 38B 39C 40A 41B 42A 43D 44B 45B 46C 47A 48D 49D 50C 51A 52A 53A 54A 55D 56C 57A 58A 59A 60A 61D 62B 63A 64A 65C 66C 67C 68B 69C 70C", 
+
+    // ĐÚNG/SAI: Nhập đáp án kiểu 71-ĐSSS
+    tf_raw: `
+Câu 71: Đọc đoạn tư liệu sau đây, trong mỗi ý A, B, C, D, học sinh chọn đúng hoặc sai.
+“…Rạng sáng ngày 23/9/1945, được sự giúp đỡ của quân đội Anh, thực dân Pháp chính thức bội ước, cho hàng ngàn lính nổ súng tấn công, đánh chiếm Sài Gòn, chính thức mở ra cuộc chiến tranh xâm lược nước ta lần thứ hai.  “Sơn hà nguy biến”, Xứ ủy, Ủy ban nhân dân, Ủy ban Kháng chiến Nam bộ và Đại diện Tổng bộ Việt Minh đã thống nhất ra Lời kêu gọi  đồng bào cầm vũ khí đánh đuổi quân xâm lược. Nam Bộ bước vào cuộc chiến trực diện với kẻ thù.
+Ngày 26/9/1945, qua làn sóng của Đài Tiếng nói Việt Nam, Chủ tịch Hồ chí Minh kêu gọi; “Hỡi đồng bào Nam bộ! Nước ta vừa tranh quyền độc lập, thì đã gặp nạn ngoại xâm... Tôi chắc và đồng bào cả nước đều chắc vào lòng kiên quyết ái quốc của đồng bào Nam bộ. Chúng ta nên nhớ lời nói oanh liệt của nhà đại cách mạng Pháp “thà chết tự do còn hơn sống nô lệ” ... Chúng ta nhất định thắng lợi vì chúng ta có lực lượng đoàn kết của cả quốc dân. Chúng ta nhất định thắng lợi vì cuộc đấu tranh của chúng ta là chính đáng”..”.
+( Trích Nam Bộ kháng chiến - Hào khí và quyết tâm bảo vệ  nền độc lập, tự do của nước nhà, báo điện tử Đảng bộ Tỉnh Quảng Ngãi, 9/2021)
+a) Thực dân Anh vào Đông Dương giải giáp phát xít Nhật với danh nghĩa đại diện của phe Đồng minh.
+b) Kẻ thù nguy hiểm nhất của nước Việt Nam Dân chủ Cộng hòa sau cách mạng tháng Tám là thực dân Pháp.
+c) Trước dã tâm xâm lược của kẻ thù, nhân dân Nam Bộ kiên trì đấu tranh bằng con đường hòa bình để giữ vững thành quả cách mạng.
+d) Trong lời kêu gọi ngày 26/9/1945, Chủ tịch Hồ chí Minh kêu gọi toàn quốc kháng chiến để bảo vệ nền độc lập nước nhà.
+Câu 72: Đọc đoạn tư liệu sau đây, trong mỗi ý A, B, C, D, học sinh chọn đúng hoặc sai.
+Cuộc chiến đấu của quân và dân ta ở tại đô thị [phía Bắc vĩ tuyến 16] suốt gần ba tháng có ý nghĩa rất lớn. Ta đã chủ động mở đầu cuộc kháng chiến toàn quốc đúng lúc, khi khả năng hòa hoãn không còn, ta có chuẩn bị và viện binh Pháp còn lênh đênh trên biển. Ngoài việc làm tiêu hao, tiêu diệt một bộ phận địch, ta đã bảo vệ an toàn cơ quan đầu não và bảo tồn lực lượng kháng chiến, giành được khoảng thời gian chiến lược quý báu để tiếp tục chuyển đất nước vào thời chiến và đẩy lùi âm mưu đánh nhanh thắng nhanh của địch.
+           (Viện Lịch sử quân sự Việt Nam, Lịch sử quân sự Việt Nam, tập 10: Cuộc kháng chiến chống thực dân Pháp (1945 – 1954), NXB Chính trị Quốc gia Sự thật, 2019, tr. 71).
+a) Cuộc chiến đấu ở các đô thị phía Bắc vĩ tuyến 16 là thắng lợi quân sự mở đầu của quân dân ta trong cuộc kháng chiến toàn quốc chống thực dân Pháp.
+b) Cuộc chiến đấu ở các đô thị phía Bắc vĩ tuyến 16 đã bảo vệ an toàn cơ quan đầu não và những đô thị trọng yếu, tiêu diệt một bộ phận quan trọng sinh lực địch.
+c) Nối tiếp cuộc kháng chiến chống thực dân Pháp trở lại xâm lược Nam Bộ (1945), cuộc chiến đấu ở các đô thị phía Bắc vĩ tuyến 16 đã làm phá sản hoàn toàn kế hoạch “đánh nhanh thắng nhanh” của Pháp.
+d) Cuộc chiến đấu ở các đô thị phía Bắc vĩ tuyến 16 và chiến dịch Biên giới thu đông 1950 đều là những chiến dịch do ta chủ động tiến hành, đạt được mục tiêu ban đầu đề ra.
+Câu 73: Đọc đoạn tư liệu sau đây, trong mỗi ý A, B, C, D, học sinh chọn đúng hoặc sai.
+Chiến dịch Việt Bắc là chiến dịch phản công lớn đầu tiên của lực lượng vũ trang cách mạng. Chiến thắng Việt Bắc cùng với thắng lợi trên các chiến trường khác trong thu đông năm 1947 đã đưa cuộc kháng chiến chống thực dân Pháp của nhân dân ta sang giai đoạn lịch sử mới.
+                     (Nguyễn Quang Ngọc (Chủ biên), Tiến trình lịch sử Việt Nam, NXB Giáo dục, 2007, tr.313)
+a) Chiến dịch Việt Bắc là chiến dịch phản công lớn đầu tiên và cũng là thắng lợi quân sự đầu tiên của quân dân ta trong kháng chiến chống Pháp.
+b) Chiến dịch Việt Bắc góp phần đưa cuộc kháng chiến chống Pháp của nhân dân ta sang giai đoạn lịch sử mới vì đã làm thất bại hoàn toàn kế hoạch “đánh nhanh thắng nhanh” của thực dân Pháp.
+c) Cuộc chiến đấu ở các đô thị phía Bắc vĩ tuyến 16 (cuối 1946 – đầu 1947) và chiến dịch Việt Bắc thu đông 1947 có sự khác biệt về địa hình tác chiến, lực lượng lãnh đạo và lực lượng chủ lực tham gia.
+d) Chiến dịch Việt Bắc thu đông 1947 và chiến dịch Biên giới thu đông năm 1950 đều là những chiến dịch ta chủ động tấn công, đạt được mục tiêu.
+Câu 74. Đọc đoạn sau: Bảy năm sau sự kiện Điện Biên Phủ, ký giả người Pháp J. Roa, trong cuốn sách Trận Điện Biên Phủ ghi nhận: “Trong toàn thế giới, trận Oa-téc-lô cũng ít tiếng vang hơn... Đó là một trong những thất bại lớn của phương Tây, báo hiệu sự tan rã của các thuộc địa và sự cáo chung của một nền cộng hòa. Tiếng sấm của sự kiện Điện Biên Phủ vẫn còn đang âm vang”2. 
+Cũng với nhận định như thế, Bernard Fall, nhà sử học Mỹ gốc Pháp viết: “Chúng ta không có quyền được quên cuộc chiến này. Dù ta muốn hay không muốn, cuộc chiến tranh đó vẫn còn ảnh hưởng đến chúng ta nhiều chục năm nữa”.3
+(2, 3. Dẫn theo: Đỗ Thiện, Đinh Kim Khánh: Tiếng sấm Điện Biên Phủ, Nxb QĐND, H, 1984, tr. 284, 28)
+Các dữ kiện trên cho biết: trong mỗi ý A, B, C, D, học sinh chọn đúng hoặc sai.
+a) Trận Trận Điện Biên Phủ năm 1954, được đánh giá là “Lừng lẫy năm châu chấn động địa cầu”.
+b) Trận Điện Biên Phủ là thắng lợi quân sự quyết định, buộc Pháp phải kí Hiệp định Giơnevơ cộng nhận độc lập chủ quyền và toàn vẹn lãnh thổ cho nhân dân 3 nước Đông Dương.
+c) Làm thất bại âm mưu kéo dài chiến tranh để tìm cách thay chân Pháp trong cuộc chiến tranh Đông Dương của Mĩ.
+d) Là chiến dịch tấn công lớn đầu tiên của quân ta, làm xoay chuyển cục diện chiến tranh.
+Câu 75. Đọc đoạn tư liệu sau đây:
+"Đế quốc Mỹ và chính quyền Sài Gòn do Ngô Đình Diệm đứng đầu đã trắng trợn phá bỏ Hiệp định Giơ-ne-vơ, thẳng tay đàn áp, khủng bố, mở các chiến dịch "tố cộng, diệt cộng" bằng cái gọi là sức mạnh của quân lực cộng hoà,...
+... Để bảo vệ sinh mạng và quyền lợi cơ bản của mình, nhân dân miền Nam dưới sự lãnh đạo của Đảng không có con đường nào khác là phải đứng lên đánh đổ chế độ độc tài phát xít của Mỹ và tay sai, giải phóng hoàn toàn miền Nam, thực hiện thống nhất nước nhà".
+                           (Lê Mậu Hãn, Sức mạnh dân tộc của cách mạng Việt Nam dưới ánh sáng tư tưởng Hồ Chí Minh, NXB Chính trị quốc gia Sự thật, Hà Nội, 2017, tr.294)
+a) Sau Hiệp định Giơ-ne-vơ năm 1954 về Đông Dương, Pháp dựng lên chính quyền tay sai Ngô Đình Diệm cốt là để trì hoãn việc thống nhất đất nước ở Việt Nam.
+b) Từ thực tiễn đất nước và sự phá hoại của Mỹ và chính quyền Ngô Đình Diệm, nếu chỉ sử dụng hình thức đấu tranh hòa bình sẽ không thể thống nhất Tổ quốc.
+c) Đặc điểm lớn nhất và độc đáo nhất của cách mạng Việt Nam (1954 - 1975) là một đảng thống nhất lãnh đạo cả nước thực hiện đồng thời nhiều nhiệm vụ chiến lược.
+d) Chiến dịch Hồ Chí Minh kết thúc thắng lợi đã hoàn thành sự nghiệp kháng chiến chống Mỹ, cứu nước; đồng thời mở ra kỉ nguyên mới cho cả dân tộc.
+Câu 76. Đọc các đoạn tư liệu sau:
+“Ngày 2-1-1963, địch sử dụng khoảng 7 tiểu đoàn bộ binh, kể cả lính dù, cùng hàng chục xe tăng lội nước M.113, tàu chiến và hơn 20 máy bay tiến công vào Ấp Bắc (xã Tân Phú Trung, Cai Lậy, Mỹ Tho). Đây là địa bàn chiến lược nằm ở trung tâm của đồng bằng sông Cửu Long.
+Quán triệt phương châm bám sát trận địa, chờ khi địch tiến sát bộ đội ta mới nổ súng. Suốt một ngày tiến công, các mũi tiến công của địch từ nhiều hướng vào Ấp Bắc đều bị bẻ gãy.”
+     		(Tiến trình lịch sử Việt Nam, NXB Giáo dục, năm 2003, tr.340.)
+a) Thủ đoạn của Mỹ khi đánh vào Ấp Bắc đã dùng chiến thuật quân sự trực thăng vận”, “ thiết xa vận”.
+b) Chiến thắng Ấp Bắc của quân dân ta đã làm phá sản hoàn toàn “Chiến tranh đặc biệt” của Mỹ.
+c) Chiến thắng Ấp Bắc của quân dân ta đã mở ra khả năng đánh bại “Chiến tranh đặc biệt” của Mỹ.
+d) Cuộc tấn công vào Ấp Bắc ở miền Nam Việt Nam nằm trong chiến lược “Chiến tranh cục bộ” của Mỹ.
+Câu 77. Đọc các đoạn tư liệu sau:
+“Đêm 30 rạng ngày 31-1-1968 (đêm giao thừa Tết Mậu Thân), lực lượng vũ trang cách mạng và nhân dân miền Nam đồng loạt tiến công địch ở khắp các thành phố, thị xã.”
+ (Tiến trình lịch sử Việt Nam, NXB Giáo dục, năm 2003, tr.353.)
+a) Năm 1968, quân dân Việt Nam mở cuộc Tổng tiến công và nổi dậy trên toàn miền Nam, trọng tâm là ở các đô thị.
+b) Thắng lợi của cuộc Tổng tiến công và nổi dậy Mậu Thân năm 1968 buộc Mỹ phải “phi Mỹ hóa” chiến tranh xâm lược và chấp nhận đàm phán ở Pari.
+c) Thắng lợi của cuộc Tổng tiến công và nổi dậy Mậu Thân năm 1968 buộc Mỹ phải “Mỹ hóa” trở lại chiến tranh xâm lược xâm lược Việt Nam.
+d) Thắng lợi của cuộc Tổng tiến công và nổi dậy Mậu Thân năm 1968, buộc Mỹ phải thừa nhận thất bại của chiến lược “Chiến tranh đặc biệt”.
+Câu 78. Đọc đoạn tư liệu sau
+“Vào lúc 17 giờ ngày 26/4, quân ta đã nổ súng mở đầu chiến dịch, năm cánh quân của ta đã vượt qua tuyến phòng thủ của địch để tiến vào trung tâm Sài Gòn, đánh chiếm các cơ quan đầu não của chúng. 10 giờ 45 phút ngày 30/4, xe tăng và bộ binh của ta tiến vào Dinh Độc Lập, bắt toàn bộ Nội các của Sài Gòn, Dương Văn Minh vừa lên chức tổng thống ngày 28/4 đã phải tuyên bố đầu hàng quân ta không điều kiện. Đến 11 giờ 30 phút cùng ngày, lá cờ cách mạng tung bay trên Dinh Độc Lập, báo hiệu sự toàn thắng của chiến dịch Hồ Chí Minh lịch sử”.
+(Lịch sử, ý nghĩa ngày giải phóng miền Nam, thống nhất đất nước 30/4, Trang thông tin điện tử Đảng bộ thành phố Đà Lạt)
+a) Chiến dịch Hồ Chí Minh là chiến dịch mở đầu cuộc Tổng tiến công và nổi dậy Mùa Xuân năm 1975.
+b) Ngày 30/4/1975, tập đoàn Ngô Đình Diệm đã đầu hàng quân ta không điều kiện.
+c) Chiến dịch Hồ Chí Minh đã kết thúc 30 năm kháng chiến chống Mỹ cứu nước của quân dân Việt Nam.
+d) Ngày 30/4/1975 là ngày giải phóng hoàn toàn miền Nam, thống nhất đất nước. 
+
+    `,
+    tf_ans: "71-ĐĐSS 72-ĐSSS 73-SĐSS 74-ĐĐĐS 75-SĐSĐ 76-ĐSĐS 77-ĐĐSS 78-SSSĐ",
+
+    // TRẢ LỜI NGẮN: Nhập đáp án kiểu 60-1858
+    short_raw: `
+
+    `,
+    short_ans: ""
+};
+
+// --- HỆ THỐNG XỬ LÝ ---
+let parsed = { choice: [], tf: [], short: [] };
+let activeMode = '';
+let currentQ = [];
+let studentAns = {};
+
+function parseAll() {
+    document.getElementById('display-title').innerText = `[${RawData.title}]`;
+    
+    // 1. Parse Trắc nghiệm
+    const cRegex = /(?:Câu\s*(\d+)[\.:]|(\b\d+)[\.:])([\s\S]*?)A\.\s*([\s\S]*?)B\.\s*([\s\S]*?)C\.\s*([\s\S]*?)D\.\s*([\s\S]*?)(?=(?:Câu\s*\d+[\.:]|\b\d+[\.:])|$)/gi;
+    let m;
+    const cAnsMap = {};
+    const cMatches = RawData.choice_ans.match(/(\d+)([A-D])/gi) || [];
+    cMatches.forEach(item => {
+        let num = item.match(/\d+/)[0];
+        let char = item.match(/[A-D]/i)[0].toUpperCase();
+        cAnsMap[num] = "ABCD".indexOf(char);
+    });
+
+    while ((m = cRegex.exec(RawData.choice_raw)) !== null) {
+        let qNum = m[1] || m[2];
+        parsed.choice.push({
+            id: 'c' + qNum,
+            num: qNum,
+            q: m[3].trim(),
+            options: [m[4].trim(), m[5].trim(), m[6].trim(), m[7].trim()],
+            correct: cAnsMap[qNum]
+        });
+    }
+
+    // 2. Parse Đúng/Sai
+    const tfRegex = /(?:Câu\s*(\d+)[\.:]|(\b\d+)[\.:])([\s\S]*?)a\)\s*([\s\S]*?)b\)\s*([\s\S]*?)c\)\s*([\s\S]*?)d\)\s*([\s\S]*?)(?=(?:Câu\s*\d+[\.:]|\b\d+[\.:])|$)/gi;
+    const tfAnsMap = {};
+    const tfMatches = RawData.tf_ans.match(/(\d+)-([ĐS]{4})/gi) || [];
+    tfMatches.forEach(item => {
+        let parts = item.split('-');
+        tfAnsMap[parts[0]] = parts[1].split('').map(c => c === 'Đ');
+    });
+
+    while ((m = tfRegex.exec(RawData.tf_raw)) !== null) {
+        let qNum = m[1] || m[2];
+        parsed.tf.push({
+            id: 'tf' + qNum,
+            num: qNum,
+            q: m[3].trim(),
+            sub: [m[4].trim(), m[5].trim(), m[6].trim(), m[7].trim()],
+            correct: tfAnsMap[qNum]
+        });
+    }
+
+    // 3. Parse Trả lời ngắn
+    const sRegex = /(?:Câu\s*(\d+)[\.:]|(\b\d+)[\.:])([\s\S]*?)(?=(?:Câu\s*\d+[\.:]|\b\d+[\.:])|$)/gi;
+    const sAnsMap = {};
+    const sMatches = RawData.short_ans.match(/(\d+)-([^\s]+)/gi) || [];
+    sMatches.forEach(item => {
+        let parts = item.split('-');
+        sAnsMap[parts[0]] = parts[1];
+    });
+
+    while ((m = sRegex.exec(RawData.short_raw)) !== null) {
+        let qNum = m[1] || m[2];
+        parsed.short.push({
+            id: 's' + qNum,
+            num: qNum,
+            q: m[3].trim(),
+            correct: sAnsMap[qNum]
+        });
+    }
+}
+
+function initSection(mode) {
+    if (parsed[mode].length === 0) return alert("Không có câu hỏi phần này!");
+    activeMode = mode;
+    currentQ = [...parsed[mode]].sort(() => Math.random() - 0.5);
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('quiz-area').style.display = 'block';
+    renderQuiz();
+}
+
+function renderQuiz() {
+    const container = document.getElementById('questions-container');
+    container.innerHTML = '';
+    currentQ.forEach((q, idx) => {
+        let html = `<div class="question-item"><p><b>Câu ${idx+1} (${q.num}):</b> ${q.q}</p>`;
+        if (activeMode === 'choice') {
+            q.options.forEach((opt, i) => {
+                html += `<label style="display:block;margin:5px 0;"><input type="radio" name="${q.id}" value="${i}"> ${String.fromCharCode(65+i)}. ${opt}</label>`;
+            });
+        } else if (activeMode === 'tf') {
+            q.sub.forEach((s, i) => {
+                html += `<div style="margin:10px 0 10px 20px;">• ${s} 
+                    <label><input type="radio" name="${q.id}_${i}" value="true"> Đ</label>
+                    <label style="margin-left:10px;"><input type="radio" name="${q.id}_${i}" value="false"> S</label></div>`;
+            });
+        } else if (activeMode === 'short') {
+            html += `<input type="text" id="input_${q.id}" placeholder="Nhập câu trả lời...">`;
+        }
+        container.innerHTML += html + `</div>`;
+    });
+}
+
+function grade() {
+    let rawScore = 0;
+    const pPerQ = 10 / currentQ.length;
+
+    currentQ.forEach(q => {
+        studentAns[q.id] = { points: 0, val: null, subs: [] };
+        if (activeMode === 'choice') {
+            let sel = document.querySelector(`input[name="${q.id}"]:checked`);
+            studentAns[q.id].val = sel ? parseInt(sel.value) : null;
+            if (studentAns[q.id].val === q.correct) { studentAns[q.id].points = pPerQ; rawScore += pPerQ; }
+        } else if (activeMode === 'tf') {
+            let count = 0;
+            q.sub.forEach((_, i) => {
+                let sel = document.querySelector(`input[name="${q.id}_${i}"]:checked`);
+                let v = sel ? (sel.value === 'true') : null;
+                studentAns[q.id].subs.push(v);
+                if (v === q.correct[i]) count++;
+            });
+            let ratio = [0, 0.1, 0.2, 0.5, 1][count] || 0;
+            studentAns[q.id].points = pPerQ * ratio; rawScore += studentAns[q.id].points;
+        } else if (activeMode === 'short') {
+            let val = document.getElementById(`input_${q.id}`).value.trim();
+            studentAns[q.id].val = val;
+            if (val.toLowerCase() === q.correct.toLowerCase()) { studentAns[q.id].points = pPerQ; rawScore += pPerQ; }
+        }
+    });
+
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+    document.getElementById('score-text').innerText = (Math.round(rawScore * 10) / 10) + "/10";
+}
+
+function renderReview(mode) {
+    const div = document.getElementById('review-list');
+    div.innerHTML = '';
+    const list = (mode === 'all') ? parsed[activeMode] : currentQ;
+    const maxP = 10 / list.length;
+
+    list.forEach((q, idx) => {
+        const ans = studentAns[q.id];
+        if (mode === 'correct' && ans.points < maxP * 0.9) return;
+        if (mode === 'wrong' && ans.points >= maxP * 0.9) return;
+
+        let html = `<div class="question-item"><p><b>Câu ${q.num}:</b> ${q.q}</p>`;
+        
+        if (activeMode === 'choice') {
+            q.options.forEach((opt, i) => {
+                let cls = (i === q.correct) ? 'correct-ans' : (i === ans.val ? 'wrong-ans' : '');
+                html += `<div class="${cls}">${String.fromCharCode(65+i)}. ${opt} ${i === q.correct ? '✓' : ''}</div>`;
+            });
+        } else if (activeMode === 'tf') {
+            q.sub.forEach((s, i) => {
+                let userS = ans.subs[i] === null ? '_' : (ans.subs[i] ? 'Đ' : 'S');
+                let isRight = ans.subs[i] === q.correct[i];
+                html += `<div>• ${s} -> <b class="correct-ans">${q.correct[i]?'Đ':'S'}</b> (Bạn chọn: <span class="${isRight?'':'wrong-ans'}">${userS}</span>)</div>`;
+            });
+        } else if (activeMode === 'short') {
+            html += `<p>Câu trả lời của bạn: <span class="${ans.points > 0 ? 'correct-ans' : 'wrong-ans'}">${ans.val || '(Trống)'}</span></p>`;
+            html += `<p class="correct-ans">Đáp án đúng: ${q.correct}</p>`;
+        }
+        div.innerHTML += html + `</div>`;
+    });
+}
+
+parseAll();
+</script>
+</body>
+</html>
