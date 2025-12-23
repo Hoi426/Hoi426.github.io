@@ -4,24 +4,83 @@
     <meta charset="UTF-8">
     <title>Hệ thống Thi Online - Đảo Toàn Diện</title>
     <style>
-        :root { --p: #2c3e50; --s: #27ae60; --d: #e74c3c; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .exam-title { text-align: center; color: var(--p); font-size: 24px; font-weight: bold; margin-bottom: 30px; border-bottom: 3px solid var(--p); padding-bottom: 10px; }
-        .box { background: #fff; border: 2px solid var(--p); border-radius: 10px; padding: 30px; margin-bottom: 15px; text-align: center; cursor: pointer; transition: 0.3s; font-size: 18px; font-weight: bold; }
-        .box:hover { background: var(--p); color: white; }
-        .question-item { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 8px; }
+        :root { 
+            --p: #2c3e50; 
+            --s: #27ae60; 
+            --d: #e74c3c; 
+            --bg: #f4f7f6; 
+            --accent: #3498db;
+        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); padding: 20px; margin: 0; }
+        
+        .container { max-width: 1100px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); position: relative; }
+        
+        .exam-title { 
+            text-align: center; color: var(--p); font-size: 26px; font-weight: bold; 
+            margin-bottom: 30px; border-bottom: 3px solid var(--p); padding-bottom: 10px; 
+        }
+
+        /* Giao diện Menu */
+        #main-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .box { 
+            background: #fff; border: 2px solid var(--p); border-radius: 10px; padding: 30px; 
+            text-align: center; cursor: pointer; transition: 0.3s; font-size: 18px; font-weight: bold; 
+        }
+        .box:hover { background: var(--p); color: white; transform: translateY(-3px); }
+
+        /* Layout làm bài */
+        #quiz-layout { display: flex; gap: 20px; display: none; }
+        #questions-container { flex: 1; }
+        
+        /* Bảng điều hướng & Thời gian */
+        .quiz-sidebar { 
+            width: 250px; position: sticky; top: 20px; background: #fff; border: 2px solid #ddd; 
+            border-radius: 10px; padding: 15px; height: fit-content;
+        }
+        .timer-box { 
+            font-size: 22px; font-weight: bold; color: var(--d); text-align: center; 
+            margin-bottom: 15px; padding: 10px; border: 2px solid var(--d); border-radius: 5px; 
+        }
+        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+        .nav-item { 
+            padding: 8px 0; background: #eee; text-align: center; border-radius: 4px; 
+            cursor: pointer; font-size: 14px; font-weight: bold; transition: 0.2s;
+        }
+        .nav-item.active { background: var(--accent); color: white; }
+        .nav-item.done { background: var(--s); color: white; }
+
+        /* Câu hỏi */
+        .question-item { background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px; scroll-margin-top: 20px; }
+        .question-item b { color: var(--p); }
+
+        /* Toast thông báo phía trên */
+        #status-toast {
+            position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 25px;
+            border-radius: 25px; font-weight: bold; z-index: 9999; display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
         .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
-        .btn-submit { background: var(--s); color: white; width: 100%; font-size: 18px; }
+        .btn-submit { background: var(--s); color: white; width: 100%; font-size: 18px; margin-top: 15px; }
         .btn-view { background: #3498db; color: white; }
+        
         #result-screen { display: none; text-align: center; }
-        .score-big { font-size: 50px; color: #e67e22; margin: 10px 0; }
+        .score-big { font-size: 50px; color: #e67e22; margin: 10px 0; font-weight: bold; }
         .correct-ans { color: var(--s); font-weight: bold; }
         .wrong-ans { color: var(--d); font-weight: bold; }
-        input[type="text"] { padding: 10px; width: 80%; border: 1px solid #ccc; border-radius: 4px; margin-top: 10px; }
+        
+        input[type="text"] { padding: 10px; width: 90%; border: 1px solid #ccc; border-radius: 4px; margin-top: 10px; font-size: 16px; }
+
+        @media (max-width: 768px) {
+            #quiz-layout { flex-direction: column; }
+            .quiz-sidebar { width: 100%; position: static; }
+        }
     </style>
 </head>
 <body>
+
+<div id="status-toast"></div>
 
 <div class="container">
     <div class="exam-title" id="display-title">[Tên đề thi]</div>
@@ -33,8 +92,16 @@
     </div>
 
     <div id="quiz-area" style="display:none;">
-        <div id="questions-container"></div>
-        <button class="btn btn-submit" onclick="grade()">Nộp bài</button>
+        <div id="quiz-layout">
+            <div id="questions-container"></div>
+            
+            <div class="quiz-sidebar">
+                <div class="timer-box" id="timer">40:00</div>
+                <div style="margin-bottom: 10px; font-weight: bold; font-size: 14px;">Danh sách câu hỏi:</div>
+                <div class="nav-grid" id="nav-grid"></div>
+                <button class="btn btn-submit" onclick="if(confirm('Bạn có muốn nộp bài?')) grade()">Nộp bài</button>
+            </div>
+        </div>
     </div>
 
     <div id="result-screen">
@@ -51,7 +118,7 @@
 </div>
 
 <script>
-// --- DỮ LIỆU GIÁO VIÊN (Giữ nguyên định dạng bạn muốn) ---
+// --- DỮ LIỆU GIÁO VIÊN ---
 const RawData = {
     title: "KIỂM TRA LỊCH SỬ - HỆ THỐNG ĐẢO TOÀN DIỆN",
     choice_raw: `
@@ -436,8 +503,7 @@ Câu 70. Phong trào đấu tranh chính trị của quân dân Việt Nam trong
 A. Mỹ thi hành Hiệp định Giơ-ne-vơ.
 B. quyền tự do dân chủ, cơm áo, hòa bình.
 C. Mỹ rút về nước và đòi tự do dân chủ.
-D. chống sự đàn áp của chính quyền Diệm.
-    `,
+D. chống sự đàn áp của chính quyền Diệm.    `,
     choice_ans: "1C 2C 3A 4C 5A 6D 7A 8D 9D 10C 11C 12A 13B 14B 15D 16D 17B 18A 19D 20B 21C 22C 25C 26B 27D 28B 29C 30C 31C 32B 33C 34D 35B 36A 37C 38B 39C 40A 41B 42A 43D 44B 45B 46C 47A 48D 49D 50C 51A 52A 53A 54A 55D 56C 57A 58A 59A 60A 61D 62B 63A 64A 65C 66C 67C 68B 69C 70C", 
 
     tf_raw: `
@@ -501,8 +567,6 @@ a) Chiến dịch Hồ Chí Minh là chiến dịch mở đầu cuộc Tổng ti
 b) Ngày 30/4/1975, tập đoàn Ngô Đình Diệm đã đầu hàng quân ta không điều kiện.
 c) Chiến dịch Hồ Chí Minh đã kết thúc 30 năm kháng chiến chống Mỹ cứu nước của quân dân Việt Nam.
 d) Ngày 30/4/1975 là ngày giải phóng hoàn toàn miền Nam, thống nhất đất nước. 
-
-
     `,
     tf_ans: "71-ĐĐSS 72-ĐSSS 73-SĐSS 74-ĐĐĐS 75-SĐSĐ 76-ĐSĐS 77-ĐĐSS 78-SSSĐ",
 
@@ -514,13 +578,40 @@ let parsed = { choice: [], tf: [], short: [] };
 let activeMode = '';
 let currentQ = [];
 let studentAns = {};
+let timerInterval;
 
 function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
+// --- HÀM HIỂN THỊ THÔNG BÁO ---
+function showStatus(msg) {
+    const toast = document.getElementById('status-toast');
+    toast.innerText = msg;
+    toast.style.display = 'block';
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(() => { toast.style.display = 'none'; }, 2000);
+}
+
+function updateNav(idx) {
+    const items = document.querySelectorAll('.nav-item');
+    if(items[idx]) items[idx].classList.add('done');
+}
+
+function startTimer(duration) {
+    let timer = duration, minutes, seconds;
+    timerInterval = setInterval(function () {
+        minutes = parseInt(timer / 60, 10);
+        seconds = parseInt(timer % 60, 10);
+        document.getElementById('timer').textContent = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+        if (--timer < 0) {
+            clearInterval(timerInterval);
+            alert("Hết giờ làm bài!");
+            grade();
+        }
+    }, 1000);
+}
+
 function parseAll() {
     document.getElementById('display-title').innerText = `[${RawData.title}]`;
-    
-    // 1. Trắc nghiệm
     const cAnsMap = {};
     const cMatches = RawData.choice_ans.match(/(\d+)([A-D])/gi) || [];
     cMatches.forEach(item => {
@@ -534,8 +625,6 @@ function parseAll() {
         let qNum = m[1] || m[2];
         parsed.choice.push({ id: 'c'+qNum, num: qNum, q: m[3].trim(), options: [m[4].trim(), m[5].trim(), m[6].trim(), m[7].trim()], correct: cAnsMap[qNum] });
     }
-
-    // 2. Đúng/Sai
     const tfAnsMap = {};
     const tfMatches = RawData.tf_ans.match(/(\d+)-([ĐS]{4})/gi) || [];
     tfMatches.forEach(item => { let p = item.split('-'); tfAnsMap[p[0]] = p[1].split('').map(c => c === 'Đ'); });
@@ -544,8 +633,6 @@ function parseAll() {
         let qNum = m[1] || m[2];
         parsed.tf.push({ id: 'tf'+qNum, num: qNum, q: m[3].trim(), sub: [m[4].trim(), m[5].trim(), m[6].trim(), m[7].trim()], correct: tfAnsMap[qNum] });
     }
-
-    // 3. Ngắn
     const sAnsMap = {};
     const sMatches = RawData.short_ans.match(/(\d+)-([^\s]+)/gi) || [];
     sMatches.forEach(item => { let p = item.split('-'); sAnsMap[p[0]] = p[1]; });
@@ -559,11 +646,11 @@ function parseAll() {
 function initSection(mode) {
     if (parsed[mode].length === 0) return alert("Không có câu hỏi!");
     activeMode = mode;
-    
     currentQ = parsed[mode].map(q => {
-        let newQ = JSON.parse(JSON.stringify(q)); // Deep copy
+        let newQ = JSON.parse(JSON.stringify(q));
         if (mode === 'choice') {
-            let opts = q.options.map((text, idx) => ({ text, isCorrect: idx === q.correct }));
+            // Thêm oriLabel để giữ nhãn gốc khi chấm điểm
+            let opts = q.options.map((text, idx) => ({ text, isCorrect: idx === q.correct, oriLabel: String.fromCharCode(65+idx) }));
             newQ.shuffledOptions = shuffle(opts);
         } else if (mode === 'tf') {
             let subs = q.sub.map((text, idx) => ({ text, isCorrect: q.correct[idx] }));
@@ -575,32 +662,44 @@ function initSection(mode) {
 
     document.getElementById('main-menu').style.display = 'none';
     document.getElementById('quiz-area').style.display = 'block';
+    document.getElementById('quiz-layout').style.display = 'flex';
     renderQuiz();
+    startTimer(40 * 60);
 }
 
 function renderQuiz() {
     const container = document.getElementById('questions-container');
-    container.innerHTML = '';
+    const nav = document.getElementById('nav-grid');
+    container.innerHTML = ''; nav.innerHTML = '';
+    
     currentQ.forEach((q, idx) => {
-        let html = `<div class="question-item"><p><b>Câu ${idx+1}:</b> ${q.q}</p>`;
+        // Render Nav
+        let n = document.createElement('div');
+        n.className = 'nav-item'; n.innerText = idx + 1;
+        n.onclick = () => document.getElementById(q.id).scrollIntoView({behavior:'smooth'});
+        nav.appendChild(n);
+
+        let html = `<div class="question-item" id="${q.id}"><p><b>Câu ${idx+1}:</b> ${q.q}</p>`;
         if (activeMode === 'choice') {
             q.shuffledOptions.forEach((opt, i) => {
-                html += `<label style="display:block;margin:5px 0;"><input type="radio" name="${q.id}" value="${opt.isCorrect}"> ${String.fromCharCode(65+i)}. ${opt.text}</label>`;
+                let label = String.fromCharCode(65+i);
+                html += `<label style="display:block;margin:5px 0; cursor:pointer;"><input type="radio" name="${q.id}" value="${opt.isCorrect}" data-ori="${opt.oriLabel}" onchange="showStatus('Câu ${idx+1} - Chọn ${opt.oriLabel}'); updateNav(${idx})"> ${label}. ${opt.text}</label>`;
             });
         } else if (activeMode === 'tf') {
             q.shuffledSubs.forEach((s, i) => {
                 html += `<div style="margin:10px 0 10px 20px;">• ${s.text} 
-                <label><input type="radio" name="${q.id}_${i}" value="${s.isCorrect}"> Đ</label>
-                <label style="margin-left:10px;"><input type="radio" name="${q.id}_${i}" value="${!s.isCorrect}"> S</label></div>`;
+                <label><input type="radio" name="${q.id}_${i}" value="${s.isCorrect}" onchange="showStatus('Câu ${idx+1} - Chọn Đúng'); updateNav(${idx})"> Đ</label>
+                <label style="margin-left:10px;"><input type="radio" name="${q.id}_${i}" value="${!s.isCorrect}" onchange="showStatus('Câu ${idx+1} - Chọn Sai'); updateNav(${idx})"> S</label></div>`;
             });
         } else if (activeMode === 'short') {
-            html += `<input type="text" id="input_${q.id}" placeholder="Nhập câu trả lời...">`;
+            html += `<input type="text" id="input_${q.id}" placeholder="Nhập câu trả lời..." oninput="if(this.value.trim()!='') { showStatus('Câu ${idx+1} - Chọn ' + this.value); updateNav(${idx}); }">`;
         }
         container.innerHTML += html + `</div>`;
     });
 }
 
 function grade() {
+    clearInterval(timerInterval);
     let rawScore = 0; let pPerQ = 10 / currentQ.length;
     currentQ.forEach(q => {
         studentAns[q.id] = { points: 0, display: '', tf_results: [] };
@@ -608,7 +707,10 @@ function grade() {
             let sel = document.querySelector(`input[name="${q.id}"]:checked`);
             if (sel) {
                 let isRight = (sel.value === 'true');
-                studentAns[q.id].display = sel.parentElement.innerText.trim();
+                // Sửa lỗi nhãn: Lấy nhãn gốc từ data-ori thay vì lấy text label trên màn hình
+                let oriLabel = sel.getAttribute('data-ori');
+                let optText = q.shuffledOptions.find(o => o.oriLabel === oriLabel).text;
+                studentAns[q.id].display = oriLabel + ". " + optText;
                 if (isRight) { studentAns[q.id].points = pPerQ; rawScore += pPerQ; }
             }
         } else if (activeMode === 'tf') {
@@ -645,15 +747,14 @@ function renderReview(mode) {
         let html = `<div class="question-item"><p><b>Câu ${q.num}:</b> ${q.q}</p>`;
         if (activeMode === 'choice') {
             q.options.forEach((opt, i) => {
+                let label = String.fromCharCode(65+i);
                 let cls = (i === q.correct) ? 'correct-ans' : '';
-                html += `<div class="${cls}">${String.fromCharCode(65+i)}. ${opt} ${i === q.correct ? '✓' : ''}</div>`;
+                html += `<div class="${cls}">${label}. ${opt} ${i === q.correct ? '✓' : ''}</div>`;
             });
             html += `<p>Bạn chọn: <span class="${ans.points > 0 ? 'correct-ans' : 'wrong-ans'}">${ans.display || '(Trống)'}</span></p>`;
         } else if (activeMode === 'tf') {
-            // Hiển thị lại đúng thứ tự a, b, c, d của đề gốc khi review
             q.sub.forEach((sText, i) => {
                 let isRight = q.correct[i];
-                // Tìm xem trong lúc làm bài, học sinh đã chọn gì cho ý này
                 let work = ans.tf_results.find(r => r.text === sText);
                 let userS = (work && work.user !== null) ? (work.user ? 'Đ' : 'S') : '_';
                 let check = work ? (work.user === true) : false;
@@ -670,7 +771,3 @@ parseAll();
 </script>
 </body>
 </html>
-
-
-
-
